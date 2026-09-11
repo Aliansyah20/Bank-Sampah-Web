@@ -9,7 +9,7 @@ with app.app_context():
     # Cek apakah user sudah ada agar tidak dobel
     if not User.query.filter_by(username='sekben1').first():
         sekben = User(
-            nama_lengkap="Siti Sekben",
+            nama_lengkap="Rizki Sekben",
             username="sekben1",
             password=generate_password_hash("rahasia123"),
             role="sekben"
