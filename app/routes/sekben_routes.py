@@ -11,7 +11,25 @@ sekben_bp = Blueprint('sekben', __name__)
 @role_required(['sekben'])
 def dashboard():
     nama = session.get('nama_lengkap', 'Sekben')
-    return render_template('dashboard/sekben_dashboard.html', nama=nama)
+    
+    # 1. Ambil data statistik ringkas
+    total_warga = User.query.filter_by(role='warga').count()
+    total_jenis = JenisSampah.query.count()
+    total_setoran = Penyetoran.query.count()
+    menunggu_verifikasi = DetailPenyetoran.query.filter_by(status='menunggu').count()
+    
+    # 2. Ambil 5 setoran terakhir untuk tabel riwayat
+    riwayat_terbaru = DetailPenyetoran.query.order_by(DetailPenyetoran.id.desc()).limit(5).all()
+
+    return render_template(
+        'dashboard/sekben_dashboard.html',
+        nama=nama,
+        total_warga=total_warga,
+        total_jenis=total_jenis,
+        total_setoran=total_setoran,
+        menunggu_verifikasi=menunggu_verifikasi,
+        riwayat_terbaru=riwayat_terbaru
+    )
 
 # --- TERIMA SETORAN SAMPAH DARI WARGA ---
 @sekben_bp.route('/terima-setoran', methods=['GET', 'POST'])
