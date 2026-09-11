@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard Sekben{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: white; height: 100vh; position: fixed; top: 0; left: 0; padding-top: 20px; }
+        .sidebar h3 { text-align: center; margin-bottom: 30px; }
+        .sidebar a { display: block; color: white; padding: 14px 20px; text-decoration: none; border-bottom: 1px solid #34495e; font-size: 15px; }
+        .sidebar a:hover { background-color: #34495e; }
+        .content { margin-left: 250px; padding: 30px; }
+        .alert { padding: 10px 15px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- SIDEBAR PERMANEN -->
+    <div class="sidebar">
+        <h3>Bank Sampah</h3>
+        <a href="/sekben/dashboard">🏠 Dashboard Utama</a>
+        <a href="/sekben/jenis-sampah">📦 Kelola Jenis Sampah</a>
+        <a href="/sekben/warga">👥 Kelola Data Warga</a>
+        <a href="/sekben/terima-setoran">📝 Terima Setoran</a>
+        <a href="/auth/logout" style="background-color: #e74c3c; margin-top: 50px;">🚪 Keluar</a>
+    </div>
+
+    <!-- AREA KANAN DINAMIS -->
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                    <div class="alert alert-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        <!-- Konten spesifik tiap menu akan tampil di sini -->
+        {% endblock %}
+    </div>
+
+</body>
+</html>
