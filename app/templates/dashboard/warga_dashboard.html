@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Warga - Bank Sampah</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+        .navbar { background-color: #27ae60; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h2 { margin: 0; font-size: 20px; }
+        .btn-logout { background-color: #c0392b; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        
+        /* Ringkasan Akun */
+        .welcome-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .card-stat { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border-top: 4px solid #27ae60; }
+        .card-stat.blue { border-top-color: #2980b9; }
+        .card-stat.orange { border-top-color: #e67e22; }
+        .card-stat h4 { margin: 0; color: #7f8c8d; font-size: 13px; text-transform: uppercase; }
+        .card-stat .value { font-size: 26px; font-weight: bold; color: #2c3e50; margin-top: 8px; }
+        
+        /* Tabel Riwayat */
+        .card-table { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
+        th { background-color: #fafafa; color: #555; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: capitalize; }
+        .badge-menunggu { background-color: #fff3cd; color: #856404; }
+        .badge-terverifikasi { background-color: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h2>🌱 Bank Sampah - Portal Warga</h2>
+        <a href="/auth/logout" class="btn-logout">🚪 Keluar</a>
+    </div>
+
+    <div class="container">
+        <!-- Kartu Sambutan -->
+        <div class="welcome-card">
+            <h2 style="margin: 0 0 5px 0;">Halo, {{ warga.nama_lengkap }}!</h2>
+            <p style="margin: 0; color: #7f8c8d;">Username: <b>{{ warga.username }}</b> | Peran: Warga Penyetor</p>
+        </div>
+
+        <!-- Kartu Saldo & Statistik -->
+        <div class="stats-grid">
+            <div class="card-stat">
+                <h4>Saldo Tabungan Anda</h4>
+                <div class="value" style="color: #27ae60;">Rp {{ "{:,.2f}".format(warga.saldo_terkini) }}</div>
+            </div>
+            <div class="card-stat blue">
+                <h4>Total Sampah Terverifikasi</h4>
+                <div class="value">{{ "{:.2f}".format(total_berat) }} Kg</div>
+            </div>
+            <div class="card-stat orange">
+                <h4>Total Setoran</h4>
+                <div class="value">{{ total_transaksi }} Kali</div>
+            </div>
+        </div>
+
+        <!-- Tabel Riwayat Penyetoran -->
+        <div class="card-table">
+            <h3 style="margin: 0 0 15px 0;">Riwayat Setoran Sampah Saya</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu Setor</th>
+                        <th>Jenis Sampah</th>
+                        <th>Taksiran Awal</th>
+                        <th>Berat Bersih Riil</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in riwayat %}
+                    <tr>
+                        <td>{{ item.penyetoran.waktu_setor.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td><b>{{ item.jenis_sampah.nama_jenis }}</b></td>
+                        <td>{{ item.berat_awal }} Kg</td>
+                        <td>
+                            {% if item.berat_verifikasi %}
+                                <b>{{ item.berat_verifikasi }} Kg</b>
+                            {% else %}
+                                <span style="color: #95a5a6;">Sedang ditimbang</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #888; padding: 25px;">Anda belum memiliki riwayat penyetoran sampah.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
