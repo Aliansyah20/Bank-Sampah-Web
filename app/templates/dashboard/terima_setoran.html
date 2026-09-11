@@ -1,67 +1,48 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Terima Setoran - Sekben</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 25px; margin: 0; }
-        .container { max-width: 500px; margin: auto; }
-        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 6px; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        button:hover { background-color: #2980b9; }
-        .alert { padding: 10px; background-color: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 15px; }
-    </style>
-</head>
-<body>
+{% extends "dashboard/base_sekben.html" %}
 
-    <div class="container">
-        <a href="/sekben/dashboard" style="text-decoration: none; color: #3498db;">⬅ Kembali ke Dashboard</a>
-        <br><br>
-        
-        <div class="form-container">
-            <h2>📝 Form Terima Setoran</h2>
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert">{{ message }}</div>
+{% block title %}Terima Setoran - Sekben{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container { background: white; padding: 30px; border-radius: 8px; max-width: 500px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; }
+    select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h2>📝 Formulir Penyetoran Sampah</h2>
+
+    <div class="form-container">
+        <form method="POST" action="/sekben/terima-setoran">
+            <div class="form-group">
+                <label>Pilih Warga Penyetor:</label>
+                <select name="id_warga" required>
+                    <option value="">-- Pilih Warga --</option>
+                    {% for w in warga_list %}
+                        <option value="{{ w.id }}">{{ w.nama_lengkap }} ({{ w.username }})</option>
                     {% endfor %}
-                {% endif %}
-            {% endwith %}
+                </select>
+            </div>
 
-            <form method="POST" action="/sekben/terima-setoran">
-                <div class="form-group">
-                    <label>Pilih Warga Penyetor:</label>
-                    <select name="id_warga" required>
-                        <option value="">-- Pilih Warga --</option>
-                        {% for w in warga_list %}
-                            <option value="{{ w.id }}">{{ w.nama_lengkap }} ({{ w.username }})</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="form-group">
+                <label>Jenis Sampah:</label>
+                <select name="id_jenis_sampah" required>
+                    <option value="">-- Pilih Jenis Sampah --</option>
+                    {% for j in jenis_sampah_list %}
+                        <option value="{{ j.id }}">{{ j.nama_jenis }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <div class="form-group">
-                    <label>Jenis Sampah:</label>
-                    <select name="id_jenis_sampah" required>
-                        <option value="">-- Pilih Jenis Sampah --</option>
-                        {% for j in jenis_sampah_list %}
-                            <option value="{{ j.id }}">{{ j.nama_jenis }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="form-group">
+                <label>Taksiran Berat Awal (Kg):</label>
+                <input type="number" step="0.01" name="berat_awal" placeholder="Contoh: 3.5" required>
+            </div>
 
-                <div class="form-group">
-                    <label>Taksiran Berat Awal (Kg):</label>
-                    <input type="number" step="0.01" name="berat_awal" placeholder="Contoh: 4.5" required>
-                </div>
-
-                <button type="submit">SIMPAN SETORAN</button>
-            </form>
-        </div>
+            <button type="submit">SIMPAN SETORAN</button>
+        </form>
     </div>
-
-</body>
-</html>
+{% endblock %}
