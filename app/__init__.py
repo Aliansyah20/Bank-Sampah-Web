@@ -22,7 +22,9 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/auth')
     from app.routes.sekben_routes import sekben_bp
     app.register_blueprint(sekben_bp, url_prefix='/sekben')
-
+    from app.routes.warga_routes import warga_bp
+    app.register_blueprint(warga_bp, url_prefix='/warga')
+    
     @app.route('/')
     def index():
         return "<h2>Mantap! Server Bank Sampah Flask sudah menyala!</h2> <a href='/auth/login'>Ke Halaman Login</a>"
