@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kelola Data Warga</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 25px; margin: 0; }
+        .container { max-width: 900px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #2c3e50; color: white; }
+        .alert { padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/sekben/dashboard" style="text-decoration: none; color: #3498db;">⬅ Kembali ke Dashboard</a>
+        <h2>👥 Kelola Data Warga Penyetor</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                    <div class="alert alert-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Form Tambah Warga Manual -->
+        <div class="card">
+            <h3>Daftarkan Warga Baru</h3>
+            <form method="POST" action="/sekben/warga">
+                <div class="form-row">
+                    <input type="text" name="nama_lengkap" placeholder="Nama Lengkap Warga" required>
+                    <input type="text" name="username" placeholder="Username untuk Login" required>
+                    <input type="password" name="password" placeholder="Password Akun" required>
+                    <button type="submit">Daftarkan</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabel Daftar Warga -->
+        <div class="card">
+            <h3>Daftar Warga Terdaftar</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">ID</th>
+                        <th>Nama Lengkap</th>
+                        <th>Username</th>
+                        <th>Saldo Terkini</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for w in daftar_warga %}
+                    <tr>
+                        <td>#{{ w.id }}</td>
+                        <td><b>{{ w.nama_lengkap }}</b></td>
+                        <td>{{ w.username }}</td>
+                        <td>Rp {{ "{:,.2f}".format(w.saldo_terkini) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #888;">Belum ada warga yang terdaftar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
