@@ -1,6 +1,47 @@
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash
+from app.models import User, JenisSampah, Penyetoran, DetailPenyetoran
+from app.extensions import db
+from app.utils import role_required
 
-# --- KELOLA JENIS SAMPAH SECARA MANUAL ---
+sekben_bp = Blueprint('sekben', __name__)
+
+# --- DASHBOARD UTAMA SEKBEN ---
+@sekben_bp.route('/dashboard')
+@role_required(['sekben'])
+def dashboard():
+    nama = session.get('nama_lengkap', 'Sekben')
+    return render_template('dashboard/sekben_dashboard.html', nama=nama)
+
+# --- TERIMA SETORAN SAMPAH DARI WARGA ---
+@sekben_bp.route('/terima-setoran', methods=['GET', 'POST'])
+@role_required(['sekben'])
+def terima_setoran():
+    if request.method == 'POST':
+        id_warga = request.form.get('id_warga')
+        id_jenis_sampah = request.form.get('id_jenis_sampah')
+        berat_awal = request.form.get('berat_awal')
+
+        penyetoran_baru = Penyetoran(id_warga=id_warga, id_sekben=session.get('user_id'))
+        db.session.add(penyetoran_baru)
+        db.session.flush()
+
+        detail_baru = DetailPenyetoran(
+            id_penyetoran=penyetoran_baru.id,
+            id_jenis_sampah=id_jenis_sampah,
+            berat_awal=berat_awal
+        )
+        db.session.add(detail_baru)
+        db.session.commit()
+
+        flash('Setoran berhasil dicatat dan masuk ke antrean pengolah!', 'success')
+        return redirect(url_for('sekben.terima_setoran'))
+
+    warga_list = User.query.filter_by(role='warga').order_by(User.nama_lengkap.asc()).all()
+    jenis_sampah_list = JenisSampah.query.order_by(JenisSampah.nama_jenis.asc()).all()
+    return render_template('dashboard/terima_setoran.html', warga_list=warga_list, jenis_sampah_list=jenis_sampah_list)
+
+# --- KELOLA MASTER JENIS SAMPAH ---
 @sekben_bp.route('/jenis-sampah', methods=['GET', 'POST'])
 @role_required(['sekben'])
 def kelola_jenis_sampah():
@@ -16,8 +57,7 @@ def kelola_jenis_sampah():
     daftar_sampah = JenisSampah.query.order_by(JenisSampah.id.desc()).all()
     return render_template('dashboard/kelola_jenis_sampah.html', daftar_sampah=daftar_sampah)
 
-
-# --- KELOLA DATA WARGA SECARA MANUAL ---
+# --- KELOLA MASTER WARGA ---
 @sekben_bp.route('/warga', methods=['GET', 'POST'])
 @role_required(['sekben'])
 def kelola_warga():
@@ -26,10 +66,9 @@ def kelola_warga():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
 
-        # Validasi username agar tidak dobel
         user_exist = User.query.filter_by(username=username).first()
         if user_exist:
-            flash(f'Username "{username}" sudah dipakai! Gunakan username lain.', 'danger')
+            flash(f'Username "{username}" sudah terdaftar, silakan gunakan username lain.', 'danger')
         elif nama_lengkap and username and password:
             warga_baru = User(
                 nama_lengkap=nama_lengkap,
