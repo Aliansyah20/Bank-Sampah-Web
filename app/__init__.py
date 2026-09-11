@@ -4,12 +4,9 @@ import os
 from dotenv import load_dotenv
 
 def create_app():
-    # Mengambil data dari file .env
     load_dotenv()
-    
     app = Flask(__name__)
     
-    # Merakit koneksi ke MySQL
     db_user = os.getenv('DB_USERNAME')
     db_pass = os.getenv('DB_PASSWORD') or ''
     db_host = os.getenv('DB_HOST')
@@ -19,12 +16,13 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-    # Menyambungkan database ke aplikasi
     db.init_app(app)
 
-    # Route sementara untuk mengetes server
+    from app.routes.auth_routes import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
     @app.route('/')
     def index():
-        return "<h2>Mantap! Server Bank Sampah Flask sudah menyala!</h2>"
+        return "<h2>Mantap! Server Bank Sampah Flask sudah menyala!</h2> <a href='/auth/login'>Ke Halaman Login</a>"
 
     return app
