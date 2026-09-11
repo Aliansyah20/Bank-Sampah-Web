@@ -20,6 +20,8 @@ def create_app():
 
     from app.routes.auth_routes import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    from app.routes.sekben_routes import sekben_bp
+    app.register_blueprint(sekben_bp, url_prefix='/sekben')
 
     @app.route('/')
     def index():
