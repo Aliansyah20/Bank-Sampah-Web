@@ -10,20 +10,29 @@ sekben_bp = Blueprint('sekben', __name__)
 @sekben_bp.route('/dashboard')
 @role_required(['sekben'])
 def dashboard():
-    nama = session.get('nama_lengkap', 'Sekben')
-    
+
+    # Ambil user yang sedang login
+    user = User.query.filter_by(
+        id=session.get('user_id')
+    ).first()
+
     # 1. Ambil data statistik ringkas
     total_warga = User.query.filter_by(role='warga').count()
     total_jenis = JenisSampah.query.count()
     total_setoran = Penyetoran.query.count()
     menunggu_verifikasi = DetailPenyetoran.query.filter_by(status='menunggu').count()
-    
+
     # 2. Ambil 5 setoran terakhir untuk tabel riwayat
-    riwayat_terbaru = DetailPenyetoran.query.order_by(DetailPenyetoran.id.desc()).limit(5).all()
+    riwayat_terbaru = (
+        DetailPenyetoran.query
+        .order_by(DetailPenyetoran.id.desc())
+        .limit(5)
+        .all()
+    )
 
     return render_template(
         'dashboard/sekben_dashboard.html',
-        nama=nama,
+        user=user,
         total_warga=total_warga,
         total_jenis=total_jenis,
         total_setoran=total_setoran,
