@@ -9,13 +9,9 @@ marketing_bp = Blueprint('marketing', __name__)
 @marketing_bp.route('/dashboard')
 @role_required(['marketing'])
 def dashboard():
-    # 1. Ambil stok sampah yang sudah lolos timbangan pengolah (siap_jual)
+    # Mengambil stok sampah yang sudah disetujui pengolah
     stok_siap_jual = DetailPenyetoran.query.filter_by(status='siap_jual').all()
-
-    # 2. Ambil riwayat laporan keuangan penjualan
     riwayat_penjualan = Penjualan.query.order_by(Penjualan.id.desc()).all()
-
-    # 3. Hitung akumulasi kas bank sampah dari seluruh penjualan
     total_kas_terkumpul = sum(p.bagian_kas for p in riwayat_penjualan)
 
     return render_template(
