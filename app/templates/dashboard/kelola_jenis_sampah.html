@@ -36,7 +36,7 @@
             <tbody>
                 {% for item in daftar_sampah %}
                 <tr>
-                    <td>#{{ item.id }}</td>
+                    <td><b style="color: #27ae60; font-family: monospace;">SMP-{{ "%03d"|format(item.id) }}</b></td>
                     <td><b>{{ item.nama_jenis }}</b></td>
                 </tr>
                 {% else %}
