@@ -1,43 +1,30 @@
 {% extends "dashboard/base_sekben.html" %}
 
-{% block title %}Kelola Data Warga - Sekben{% endblock %}
+{% block title %}Data Warga - Sekben{% endblock %}
 
 {% block extra_css %}
 <style>
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin-bottom: 20px; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 10px 20px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border-bottom: 1px solid #ddd; padding: 12px; text-align: left; }
     th { background: #2c3e50; color: white; }
+    .badge-user { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
 </style>
 {% endblock %}
 
 {% block content %}
-    <h2>👥 Kelola Data Warga Penyetor</h2>
+    <h2>👥 Data Warga Penyetor</h2>
+    <p style="color: #666; margin-bottom: 20px;">Daftar warga yang sudah mendaftar mandiri melalui portal registrasi luar.</p>
 
     <div class="card">
-        <h3>Daftarkan Warga Baru</h3>
-        <form method="POST" action="/sekben/warga">
-            <div class="form-row">
-                <input type="text" name="nama_lengkap" placeholder="Nama Lengkap Warga" required>
-                <input type="text" name="username" placeholder="Username Login" required>
-                <input type="password" name="password" placeholder="Password Akun" required>
-                <button type="submit">Daftarkan</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="card">
-        <h3>Daftar Warga Terdaftar</h3>
+        <h3>Daftar Nasabah / Warga Terdaftar</h3>
         <table>
             <thead>
                 <tr>
                     <th style="width: 70px;">ID</th>
                     <th>Nama Lengkap</th>
-                    <th>Username</th>
-                    <th>Saldo Terkini</th>
+                    <th>Username Akun</th>
+                    <th>Saldo Tabungan Terkini</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,12 +32,12 @@
                 <tr>
                     <td>#{{ w.id }}</td>
                     <td><b>{{ w.nama_lengkap }}</b></td>
-                    <td>{{ w.username }}</td>
-                    <td>Rp {{ "{:,.2f}".format(w.saldo_terkini) }}</td>
+                    <td><span class="badge-user">@{{ w.username }}</span></td>
+                    <td style="color: #27ae60; font-weight: bold;">Rp {{ "{:,.2f}".format(w.saldo_terkini) }}</td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="4" style="text-align: center; color: #888; padding: 15px;">Belum ada warga yang terdaftar.</td>
+                    <td colspan="4" style="text-align: center; color: #888; padding: 20px;">Belum ada warga yang terdaftar di sistem.</td>
                 </tr>
                 {% endfor %}
             </tbody>
