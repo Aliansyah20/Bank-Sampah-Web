@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pusat Verifikasi Fisik - Pengolah</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; vertical-align: middle; }
+        th { background: #2c3e50; color: white; }
+        .btn-setuju { background: #27ae60; color: white; border: none; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-tolak { background: #e74c3c; color: white; border: none; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .alert { padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-danger { background: #f8d7da; color: #721c24; }
+        .alert-warning { background: #fff3cd; color: #856404; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-siap_jual { background: #d4edda; color: #155724; }
+        .badge-ditolak { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h2>🛠️ Pusat Verifikasi & Timbangan Bersih (Pengolah)</h2>
+                <small>Halo, {{ session.get('nama_lengkap') }}!</small>
+            </div>
+            <a href="/auth/logout" style="background: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none;">🚪 Keluar</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                    <div class="alert alert-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Antrean Verifikasi -->
+        <div class="card">
+            <h3>Antrean Sampah Masuk dari Sekben</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu Setor</th>
+                        <th>Warga</th>
+                        <th>Kategori</th>
+                        <th>Taksiran Sekben</th>
+                        <th>Form Verifikasi & Bukti Foto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in antrean %}
+                    <tr>
+                        <td>{{ item.penyetoran.waktu_setor.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td><b>{{ item.penyetoran.warga.nama_lengkap }}</b></td>
+                        <td>{{ item.jenis_sampah.nama_jenis }}</td>
+                        <td>{{ item.berat_awal }} Kg</td>
+                        <td>
+                            <form method="POST" action="/pengolah/verifikasi/{{ item.id }}" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" step="0.01" name="berat_verifikasi" placeholder="Berat riil (Kg)" style="width: 110px; padding: 6px;">
+                                <input type="file" name="foto_bukti" accept="image/*" required style="font-size: 12px;">
+                                <input type="text" name="alasan_tolak" placeholder="Alasan jika ditolak" style="width: 140px; padding: 6px;">
+                                
+                                <button type="submit" name="aksi" value="setuju" class="btn-setuju">✓ Setujui</button>
+                                <button type="submit" name="aksi" value="tolak" class="btn-tolak">✕ Tolak</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #888; padding: 20px;">Tidak ada antrean sampah yang perlu diverifikasi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Riwayat Pemeriksaan Terakhir -->
+        <div class="card">
+            <h3>Riwayat Pemeriksaan Terakhir</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Warga</th>
+                        <th>Sampah</th>
+                        <th>Berat Sah</th>
+                        <th>Status</th>
+                        <th>Keterangan / Bukti</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in riwayat %}
+                    <tr>
+                        <td>{{ r.penyetoran.warga.nama_lengkap }}</td>
+                        <td>{{ r.jenis_sampah.nama_jenis }}</td>
+                        <td>{{ r.berat_verifikasi if r.berat_verifikasi else '-' }} Kg</td>
+                        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+                        <td>
+                            {% if r.foto_bukti %}
+                                <a href="/static/uploads/bukti/{{ r.foto_bukti }}" target="_blank">📷 Lihat Bukti Foto</a>
+                            {% endif %}
+                            {% if r.alasan_tolak %}
+                                <br><small style="color: #c0392b;">Alasan: {{ r.alasan_tolak }}</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
