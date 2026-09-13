@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Pengawas RW - Bank Sampah</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 25px; }
         .container { max-width: 1250px; margin: auto; }
@@ -12,7 +14,7 @@
         .header-title small { color: #64748b; font-size: 14px; }
         .btn-logout { background: #ef4444; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px; }
 
-        /* Kartu Statistik Ringkup RW */
+        /* Grid Statistik */
         .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 20px; }
         .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
         .stat-card.green { border-left-color: #10b981; }
@@ -21,11 +23,16 @@
         .stat-card h4 { margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-card .val { font-size: 26px; font-weight: 700; color: #0f172a; margin-top: 8px; }
 
-        /* Grid Status Operasional Gudang */
+        /* Status Gudang */
         .grid-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .status-box { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         .status-box span { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
         .status-box strong { font-size: 20px; color: #1e293b; }
+
+        /* Layout Grafik Visual */
+        .grid-charts { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .chart-card { background: white; padding: 20px 24px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .chart-card h3 { margin: 0 0 15px 0; font-size: 16px; color: #1e293b; }
 
         /* Tabel Pengawasan */
         .card-table { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
@@ -42,13 +49,12 @@
         .badge-terjual { background: #d1fae5; color: #065f46; }
         .badge-ditolak { background: #fee2e2; color: #991b1b; }
         .link-foto { color: #2563eb; text-decoration: none; font-weight: 600; font-size: 12px; }
-        .link-foto:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Bagian Header -->
+        <!-- Header -->
         <div class="header">
             <div class="header-title">
                 <h2>🔎 Panel Pengawas Bank Sampah (Tingkat RW)</h2>
@@ -60,7 +66,7 @@
             </div>
         </div>
 
-        <!-- 4 Statistik Utama Ringkup RW -->
+        <!-- 4 Statistik Angka -->
         <div class="grid-stats">
             <div class="stat-card">
                 <h4>Warga Terdaftar (RW)</h4>
@@ -80,27 +86,43 @@
             </div>
         </div>
 
-        <!-- Ringkasan Kondisi Sampah di Gudang -->
+        <!-- Status Fisik Gudang -->
         <div class="grid-status">
             <div class="status-box" style="border-top: 3px solid #f59e0b;">
-                <span>Menunggu Timbangan Pengolah</span>
+                <span>Menunggu Timbangan</span>
                 <strong>{{ antrean_menunggu }} Item</strong>
             </div>
             <div class="status-box" style="border-top: 3px solid #3b82f6;">
-                <span>Stok Gudang Siap Jual</span>
+                <span>Stok Siap Jual</span>
                 <strong>{{ siap_jual }} Item</strong>
             </div>
             <div class="status-box" style="border-top: 3px solid #10b981;">
-                <span>Sudah Berhasil Dijual</span>
+                <span>Sudah Terjual</span>
                 <strong>{{ total_terjual }} Item</strong>
             </div>
             <div class="status-box" style="border-top: 3px solid #ef4444;">
-                <span>Tidak Lolos Sortir (Ditolak)</span>
+                <span>Ditolak</span>
                 <strong>{{ total_ditolak }} Item</strong>
             </div>
         </div>
 
-        <!-- Tabel Log Transparansi Pengawasan -->
+        <!-- Bagian Grafik Statistik (Chart.js) -->
+        <div class="grid-charts">
+            <div class="chart-card">
+                <h3>📊 Tren Volume Sampah Masuk 7 Hari Terakhir (Kg)</h3>
+                <div style="height: 260px;">
+                    <canvas id="barTrenChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>🍩 Komposisi Kategori Sampah</h3>
+                <div style="height: 260px; display: flex; justify-content: center;">
+                    <canvas id="donutKategoriChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Log Aktivitas -->
         <div class="card-table">
             <div class="table-header">
                 <h3>Log Pengawasan Aktivitas Penyetoran Sampah Warga</h3>
@@ -156,5 +178,73 @@
         </div>
     </div>
 
-</body>
-</html>
+    <!-- Script Inisialisasi Chart.js -->
+   <!-- Elemen penampung data (agar VS Code tidak error membaca Jinja di JS) -->
+    <div id="chartDataContainer"
+         data-tren-labels='{{ tren_labels|safe }}'
+         data-tren-data='{{ tren_data|safe }}'
+         data-cat-labels='{{ cat_labels|safe }}'
+         data-cat-data='{{ cat_data|safe }}'
+         style="display: none;">
+    </div>
+
+    <!-- Script Inisialisasi Chart.js murni -->
+    <script>
+        // Ambil data dari atribut HTML
+        const dataEl = document.getElementById('chartDataContainer');
+        const trenLabels = JSON.parse(dataEl.dataset.trenLabels);
+        const trenData = JSON.parse(dataEl.dataset.trenData);
+        const catLabels = JSON.parse(dataEl.dataset.catLabels);
+        const catData = JSON.parse(dataEl.dataset.catData);
+
+        // 1. Inisialisasi Bar Chart (Tren 7 Hari)
+        const ctxBar = document.getElementById('barTrenChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: trenLabels,
+                datasets: [{
+                    label: 'Berat Masuk (Kg)',
+                    data: trenData,
+                    backgroundColor: 'rgba(59, 130, 246, 0.75)',
+                    borderColor: '#2563eb',
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 2. Inisialisasi Doughnut Chart (Kategori Sampah)
+        const ctxDonut = document.getElementById('donutKategoriChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catData,
+                    backgroundColor: [
+                        '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } }
+                },
+                cutout: '65%'
+            }
+        });
+    </script>
