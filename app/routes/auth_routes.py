@@ -98,5 +98,9 @@ def redirect_by_role(role):
         return redirect(url_for('marketing.dashboard'))
     elif role == 'pengawas':
         return redirect(url_for('pengawas.dashboard'))
-    else:
+    elif role == 'warga':
         return redirect(url_for('warga.dashboard'))
+    else:
+        # Pengaman: jika role tidak dikenali, bersihkan sesi agar tidak loop
+        session.clear()
+        return redirect(url_for('auth.login'))
