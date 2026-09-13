@@ -24,11 +24,14 @@ def create_app():
     from app.routes.pengolah_routes import pengolah_bp
     from app.routes.marketing_routes import marketing_bp
     from app.routes.warga_routes import warga_bp
+    from app.routes.pengawas_routes import pengawas_bp
+    
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(sekben_bp, url_prefix='/sekben')
     app.register_blueprint(pengolah_bp, url_prefix='/pengolah')
     app.register_blueprint(marketing_bp, url_prefix='/marketing')
     app.register_blueprint(warga_bp, url_prefix='/warga')
-
+    app.register_blueprint(pengawas_bp, url_prefix='/pengawas')
+    
     return app
