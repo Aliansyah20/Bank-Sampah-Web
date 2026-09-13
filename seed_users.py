@@ -19,4 +19,3 @@ with app.app_context():
         print("Berhasil! Akun Sekben dibuat. Username: sekben1 | Pass: rahasia123")
     else:
         print("Akun sekben1 sudah ada di database.")
-        print("Verivikasi akun")
