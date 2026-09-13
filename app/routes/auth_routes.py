@@ -53,9 +53,10 @@ def register():
             return redirect(url_for('auth.register'))
 
         # Tentukan Role
+        # Tentukan Role
         if tipe_daftar == 'petugas':
-            role_pilihan = request.form.get('role')
-            if role_pilihan not in ['sekben', 'pengolah', 'pengawas']:
+            role_pilihan = request.form.get('role', '').strip().lower()
+            if role_pilihan not in ['sekben', 'pengolah', 'marketing', 'pengawas']:
                 flash('Role petugas tidak valid!', 'danger')
                 return redirect(url_for('auth.register'))
             role_final = role_pilihan
