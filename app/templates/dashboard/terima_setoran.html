@@ -28,7 +28,7 @@
                 <select name="id_warga" style="width: 100%;" required>
                     <option value="">-- Pilih Warga Terdaftar --</option>
                     {% for w in warga_list %}
-                        <option value="{{ w.id }}">{{ w.nama_lengkap }} (@{{ w.username }})</option>
+                        <option value="{{ w.id }}">[WRG-{{ "%03d"|format(w.id) }}] {{ w.nama_lengkap }} (@{{ w.username }})</option>
                     {% endfor %}
                 </select>
             </div>
