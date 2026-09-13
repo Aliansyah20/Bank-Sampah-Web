@@ -3,27 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bank Sampah</title>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh;">
-
-    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-        <h2 style="text-align: center; color: #2c3e50;">Login Bank Sampah</h2>
+    <title>Login - Bank Sampah Digital</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #27ae60 100%);
+            padding: 20px;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 35px;
+            text-align: center;
+        }
+        .brand-logo {
+            width: 65px;
+            height: 65px;
+            background: #e8f8f5;
+            color: #27ae60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 30px;
+            margin: 0 auto 15px;
+        }
+        .login-card h2 { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+        .login-card p.subtitle { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
         
-        <!-- Pesan Error (Jika Username/Pass salah) -->
+        .form-group { text-align: left; margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #34495e; margin-bottom: 6px; }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1.5px solid #dcdde1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus { border-color: #27ae60; box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.15); }
+        
+        .btn-submit {
+            width: 100%;
+            background: #27ae60;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-submit:hover { background: #219150; }
+        .btn-submit:active { transform: scale(0.99); }
+
+        .register-box {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+            font-size: 14px;
+            color: #555;
+        }
+        .register-box a { color: #2980b9; font-weight: 700; text-decoration: none; }
+        .register-box a:hover { text-decoration: underline; }
+
+        /* Alert styling */
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .alert-danger { background: #fde8e8; color: #c81e1e; border: 1px solid #f8b4b4; }
+        .alert-success { background: #def7ec; color: #03543f; border: 1px solid #bcf0da; }
+        .alert-info { background: #e1effe; color: #1e429f; border: 1px solid #b4c6fc; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="brand-logo">♻️</div>
+        <h2>Bank Sampah</h2>
+        <p class="subtitle">Sistem Pengelolaan Sampah & Saldo Warga</p>
+
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div style="color: red; margin-bottom: 10px; font-size: 14px; text-align: center;">{{ message }}</div>
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <form action="/auth/login" method="POST" style="display: flex; flex-direction: column; gap: 15px; width: 300px;">
-            <input type="text" name="username" placeholder="Username" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            <input type="password" name="password" placeholder="Password" required style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            <button type="submit" style="padding: 10px; background-color: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">MASUK</button>
+        <form action="/auth/login" method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Masukkan username Anda" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Masukkan kata sandi" required>
+            </div>
+
+            <button type="submit" class="btn-submit">MASUK KE SISTEM</button>
         </form>
+
+        <div class="register-box">
+            Belum punya akun? <br>
+            <a href="/auth/register">✨ Daftar Akun Baru di Sini</a>
+        </div>
     </div>
 
 </body>
