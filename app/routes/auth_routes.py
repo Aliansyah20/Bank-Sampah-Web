@@ -96,6 +96,6 @@ def redirect_by_role(role):
     elif role == 'marketing':
         return redirect(url_for('marketing.dashboard'))
     elif role == 'pengawas':
-        return redirect(url_for('auth.dashboard_pengawas_temp'))
+        return redirect(url_for('pengawas.dashboard'))
     else:
         return redirect(url_for('warga.dashboard'))
