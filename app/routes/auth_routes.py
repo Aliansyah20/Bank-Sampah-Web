@@ -93,9 +93,9 @@ def redirect_by_role(role):
         return redirect(url_for('sekben.dashboard'))
     elif role == 'pengolah':
         return redirect(url_for('pengolah.dashboard'))
-    elif role == 'warga':
-        return redirect(url_for('warga.dashboard'))
+    elif role == 'marketing':
+        return redirect(url_for('marketing.dashboard'))
     elif role == 'pengawas':
-        # Menyiapkan rute pengawas atau sementara ke pesan berhasil
-        return redirect(url_for('sekben.dashboard')) 
-    return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.dashboard_pengawas_temp'))
+    else:
+        return redirect(url_for('warga.dashboard'))
