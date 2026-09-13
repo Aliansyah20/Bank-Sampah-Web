@@ -30,7 +30,7 @@
             <tbody>
                 {% for w in daftar_warga %}
                 <tr>
-                    <td>#{{ w.id }}</td>
+                    <td><b style="color: #2c3e50; font-family: monospace;">WRG-{{ "%03d"|format(w.id) }}</b></td>
                     <td><b>{{ w.nama_lengkap }}</b></td>
                     <td><span class="badge-user">@{{ w.username }}</span></td>
                     <td style="color: #27ae60; font-weight: bold;">Rp {{ "{:,.2f}".format(w.saldo_terkini) }}</td>
