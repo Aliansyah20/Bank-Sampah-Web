@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Pengawas RW - Bank Sampah</title>
+    <style>
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 25px; }
+        .container { max-width: 1250px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header-title h2 { margin: 0; color: #1e293b; font-size: 24px; }
+        .header-title small { color: #64748b; font-size: 14px; }
+        .btn-logout { background: #ef4444; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px; }
+
+        /* Kartu Statistik Ringkup RW */
+        .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
+        .stat-card.green { border-left-color: #10b981; }
+        .stat-card.amber { border-left-color: #f59e0b; }
+        .stat-card.indigo { border-left-color: #6366f1; }
+        .stat-card h4 { margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .val { font-size: 26px; font-weight: 700; color: #0f172a; margin-top: 8px; }
+
+        /* Grid Status Operasional Gudang */
+        .grid-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .status-box { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .status-box span { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        .status-box strong { font-size: 20px; color: #1e293b; }
+
+        /* Tabel Pengawasan */
+        .card-table { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .table-header h3 { margin: 0; font-size: 17px; color: #1e293b; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; text-align: left; font-size: 13px; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; }
+
+        /* Badge Status */
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+        .badge-menunggu { background: #fef3c7; color: #b45309; }
+        .badge-siap_jual { background: #dbeafe; color: #1d4ed8; }
+        .badge-terjual { background: #d1fae5; color: #065f46; }
+        .badge-ditolak { background: #fee2e2; color: #991b1b; }
+        .link-foto { color: #2563eb; text-decoration: none; font-weight: 600; font-size: 12px; }
+        .link-foto:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Bagian Header -->
+        <div class="header">
+            <div class="header-title">
+                <h2>🔎 Panel Pengawas Bank Sampah (Tingkat RW)</h2>
+                <small>Pemantauan Real-Time Operasional & Partisipasi Warga — Tanggal: <b>{{ tanggal_hari_ini }}</b></small>
+            </div>
+            <div>
+                <span style="background: #e2e8f0; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-right: 10px;">Role: Pengawas RW</span>
+                <a href="/auth/logout" class="btn-logout">Keluar</a>
+            </div>
+        </div>
+
+        <!-- 4 Statistik Utama Ringkup RW -->
+        <div class="grid-stats">
+            <div class="stat-card">
+                <h4>Warga Terdaftar (RW)</h4>
+                <div class="val">{{ total_warga }} Orang</div>
+            </div>
+            <div class="stat-card indigo">
+                <h4>Setoran Masuk Hari Ini</h4>
+                <div class="val">{{ setoran_hari_ini }} Transaksi</div>
+            </div>
+            <div class="stat-card amber">
+                <h4>Volume Masuk Hari Ini</h4>
+                <div class="val">{{ "{:.2f}".format(berat_masuk_hari_ini) }} Kg</div>
+            </div>
+            <div class="stat-card green">
+                <h4>Dana Kas RW Terkumpul</h4>
+                <div class="val" style="color: #059669;">Rp {{ "{:,.2f}".format(total_kas_rw) }}</div>
+            </div>
+        </div>
+
+        <!-- Ringkasan Kondisi Sampah di Gudang -->
+        <div class="grid-status">
+            <div class="status-box" style="border-top: 3px solid #f59e0b;">
+                <span>Menunggu Timbangan Pengolah</span>
+                <strong>{{ antrean_menunggu }} Item</strong>
+            </div>
+            <div class="status-box" style="border-top: 3px solid #3b82f6;">
+                <span>Stok Gudang Siap Jual</span>
+                <strong>{{ siap_jual }} Item</strong>
+            </div>
+            <div class="status-box" style="border-top: 3px solid #10b981;">
+                <span>Sudah Berhasil Dijual</span>
+                <strong>{{ total_terjual }} Item</strong>
+            </div>
+            <div class="status-box" style="border-top: 3px solid #ef4444;">
+                <span>Tidak Lolos Sortir (Ditolak)</span>
+                <strong>{{ total_ditolak }} Item</strong>
+            </div>
+        </div>
+
+        <!-- Tabel Log Transparansi Pengawasan -->
+        <div class="card-table">
+            <div class="table-header">
+                <h3>Log Pengawasan Aktivitas Penyetoran Sampah Warga</h3>
+                <small style="color: #64748b;">Memantau keabsahan timbangan awal, verifikasi fisik, dan dokumentasi foto</small>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu Setor</th>
+                        <th>Warga Penyetor</th>
+                        <th>Kategori Sampah</th>
+                        <th>Taksiran Sekben</th>
+                        <th>Timbangan Pengolah</th>
+                        <th>Status</th>
+                        <th>Bukti Pemeriksaan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in riwayat %}
+                    <tr>
+                        <td>{{ item.penyetoran.waktu_setor.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td><b>{{ item.penyetoran.warga.nama_lengkap }}</b></td>
+                        <td>{{ item.jenis_sampah.nama_jenis }}</td>
+                        <td>{{ item.berat_awal }} Kg</td>
+                        <td>
+                            {% if item.berat_verifikasi %}
+                                <b>{{ item.berat_verifikasi }} Kg</b>
+                            {% else %}
+                                <span style="color: #94a3b8;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ item.status }}">{{ item.status }}</span>
+                        </td>
+                        <td>
+                            {% if item.foto_bukti %}
+                                <a href="/static/uploads/bukti/{{ item.foto_bukti }}" target="_blank" class="link-foto">📷 Lihat Foto</a>
+                            {% else %}
+                                <span style="color: #94a3b8; font-size: 12px;">Belum diperiksa</span>
+                            {% endif %}
+                            {% if item.alasan_tolak %}
+                                <br><small style="color: #dc2626;">Alasan: {{ item.alasan_tolak }}</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 25px;">Belum ada aktivitas penyetoran sampah di tingkat RW.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
