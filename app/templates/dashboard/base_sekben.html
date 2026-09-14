@@ -14,6 +14,30 @@
         .alert { padding: 10px 15px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
         .alert-success { background: #d4edda; color: #155724; }
         .alert-danger { background: #f8d7da; color: #721c24; }
+
+        /* Aturan khusus tampilan layar HP */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100% !important;
+                height: auto !important;
+                position: relative !important;
+                padding-bottom: 10px;
+            }
+            .sidebar h3 {
+                margin-bottom: 15px !important;
+                padding-top: 15px;
+            }
+            .sidebar a {
+                display: block;
+                padding: 10px 15px !important;
+                border-bottom: 1px solid #34495e;
+                font-size: 14px;
+            }
+            .content {
+                margin-left: 0 !important; /* Hilangkan geseran 250px agar pas di layar HP */
+                padding: 15px !important;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
