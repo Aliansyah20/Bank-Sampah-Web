@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Penjualan {{ nama_bulan }} {{ tahun }} - SADA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 30px;
+            background: #fff;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px double #000;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .header h2 { margin: 0; font-size: 20px; text-transform: uppercase; }
+        .header h3 { margin: 5px 0 0 0; font-size: 16px; font-weight: normal; }
+        .header p { margin: 5px 0 0 0; font-size: 12px; color: #555; }
+        
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .summary-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .summary-item small { font-size: 11px; text-transform: uppercase; color: #666; }
+        .summary-item b { display: block; font-size: 15px; margin-top: 4px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 7px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .signature {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+        }
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+        .signature-line {
+            margin-top: 65px;
+            border-bottom: 1px solid #000;
+        }
+
+        /* Tombol print saat di layar monitor */
+        .no-print {
+            background: #f8fafc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Hilangkan elemen kontrol saat proses cetak kertas */
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bar Navigasi Tombol Cetak (Tidak ikut tercetak di kertas) -->
+    <div class="no-print">
+        <span><b>Mode Pratinjau Cetak:</b> Rekapitulasi Penjualan {{ nama_bulan }} {{ tahun }}</span>
+        <div>
+            <button onclick="window.print()" style="background: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                🖨️ Cetak Dokumen / Simpan PDF
+            </button>
+            <button onclick="window.close()" style="background: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Kop Laporan Resmi RW -->
+    <div class="header">
+        <h2>Sistem Informasi Bank Sampah (SADA)</h2>
+        <h3>LAPORAN REKAPITULASI PENJUALAN SAMPAH KE PENGEPUL</h3>
+        <p>Sekretariat Pengelolaan Lingkungan & Kas Mandiri Tingkat RW</p>
+    </div>
+
+    <div class="meta-info">
+        <div><b>Periode Bulan:</b> {{ nama_bulan }} {{ tahun }}</div>
+        <div><b>Waktu Unduh / Cetak:</b> {{ tgl_cetak }}</div>
+    </div>
+
+    <!-- Ringkasan Akumulasi Bulanan -->
+    <div class="summary-box">
+        <div class="summary-item">
+            <small>Total Tonase</small>
+            <b>{{ "{:.2f}".format(total_berat) }} Kg</b>
+        </div>
+        <div class="summary-item">
+            <small>Total Omzet</small>
+            <b>Rp {{ "{:,.2f}".format(total_omzet) }}</b>
+        </div>
+        <div class="summary-item">
+            <small>Bagi Hasil Warga (80%)</small>
+            <b style="color: #1e40af;">Rp {{ "{:,.2f}".format(total_warga) }}</b>
+        </div>
+        <div class="summary-item">
+            <small>Kas RW (20%)</small>
+            <b style="color: #166534;">Rp {{ "{:,.2f}".format(total_kas) }}</b>
+        </div>
+    </div>
+
+    <!-- Tabel Rincian Rekap -->
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px;">No</th>
+                <th>Tanggal & Waktu</th>
+                <th>Pengepul</th>
+                <th>Jenis Sampah</th>
+                <th>Berat (Kg)</th>
+                <th>Harga / Kg</th>
+                <th>Total Hasil</th>
+                <th>Hak Warga (80%)</th>
+                <th>Kas RW (20%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in daftar_penjualan %}
+            <tr>
+                <td class="text-center">{{ loop.index }}</td>
+                <td class="text-center">{{ p.waktu_jual.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ p.nama_pengepul }}</td>
+                <td>{{ p.detail_penyetoran.jenis_sampah.nama_jenis }}</td>
+                <td class="text-center">{{ "{:.2f}".format(p.detail_penyetoran.berat_verifikasi) }}</td>
+                <td class="text-right">Rp {{ "{:,.0f}".format(p.harga_per_kg) }}</td>
+                <td class="text-right"><b>Rp {{ "{:,.2f}".format(p.total_pendapatan) }}</b></td>
+                <td class="text-right">Rp {{ "{:,.2f}".format(p.bagian_warga) }}</td>
+                <td class="text-right">Rp {{ "{:,.2f}".format(p.bagian_kas) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" class="text-center" style="padding: 20px;">
+                    Tidak ada catatan penjualan sampah ke pengepul pada bulan {{ nama_bulan }} {{ tahun }}.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% if daftar_penjualan %}
+        <tfoot>
+            <tr style="font-weight: bold; background: #f9f9f9;">
+                <td colspan="4" class="text-center">TOTAL REKAPITULASI BULAN {{ nama_bulan|upper }}</td>
+                <td class="text-center">{{ "{:.2f}".format(total_berat) }}</td>
+                <td>-</td>
+                <td class="text-right">Rp {{ "{:,.2f}".format(total_omzet) }}</td>
+                <td class="text-right">Rp {{ "{:,.2f}".format(total_warga) }}</td>
+                <td class="text-right">Rp {{ "{:,.2f}".format(total_kas) }}</td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+
+    <!-- Area Tanda Tangan Penanggung Jawab -->
+    <div class="signature">
+        <div class="signature-box">
+            <p>Mengetahui,<br><b>Ketua RW</b></p>
+            <div class="signature-line"></div>
+            <p style="font-size: 11px; margin-top: 4px;">(Nama Jelas & Cap RW)</p>
+        </div>
+
+        <div class="signature-box">
+            <p>Dilaporkan Oleh,<br><b>Divisi Marketing SADA</b></p>
+            <div class="signature-line"></div>
+            <p style="font-size: 11px; margin-top: 4px;"><b>{{ session.get('nama_lengkap', 'Petugas Marketing') }}</b></p>
+        </div>
+    </div>
+
+</body>
+</html>
