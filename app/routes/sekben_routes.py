@@ -40,52 +40,69 @@ def dashboard():
         riwayat_terbaru=riwayat_terbaru
     )
 
-# --- TERIMA SETORAN SAMPAH DARI WARGA ---
-# --- TERIMA SETORAN SAMPAH DARI WARGA ---
+# --- TERIMA SETORAN SAMPAH DARI WARGA (MULTI-ITEM) ---
 @sekben_bp.route('/terima-setoran', methods=['GET', 'POST'])
 @role_required(['sekben'])
 def terima_setoran():
     if request.method == 'POST':
         id_warga = request.form.get('id_warga')
-        id_jenis_sampah = request.form.get('id_jenis_sampah')
-        berat_awal_raw = request.form.get('berat_awal', '').strip()
+        
+        # Mengambil seluruh daftar sampah yang diinput (mendukung array maupun non-array)
+        list_jenis = request.form.getlist('id_jenis_sampah[]') or request.form.getlist('id_jenis_sampah')
+        list_berat = request.form.getlist('berat_awal[]') or request.form.getlist('berat_awal')
 
-        # 1. Validasi input tidak boleh kosong
-        if not id_warga or not id_jenis_sampah or not berat_awal_raw:
-            flash('Semua kolom wajib diisi!', 'danger')
+        # 1. Validasi warga
+        if not id_warga:
+            flash('Silakan pilih warga penyetor terlebih dahulu!', 'danger')
             return redirect(url_for('sekben.terima_setoran'))
 
-        # 2. Tangani tanda koma agar menjadi titik desimal
-        try:
-            berat_awal = float(berat_awal_raw.replace(',', '.'))
-            if berat_awal <= 0:
-                flash('Berat sampah harus lebih besar dari 0 Kg!', 'danger')
-                return redirect(url_for('sekben.terima_setoran'))
-        except ValueError:
-            flash('Format berat sampah tidak valid! Masukkan angka yang benar.', 'danger')
+        # 2. Validasi apakah ada sampah yang diinput
+        if not list_jenis or not list_berat or len(list_jenis) == 0:
+            flash('Daftar rincian sampah tidak boleh kosong!', 'danger')
             return redirect(url_for('sekben.terima_setoran'))
 
-        # 3. Simpan ke database dengan proteksi rollback jika terjadi kendala
         try:
+            # Buat 1 nota induk penyetoran untuk warga tersebut
             penyetoran_baru = Penyetoran(
-                id_warga=int(id_warga), 
+                id_warga=int(id_warga),
                 id_sekben=session.get('user_id')
             )
             db.session.add(penyetoran_baru)
-            db.session.flush()
+            db.session.flush()  # Ambil ID nota penyetoran
 
-            detail_baru = DetailPenyetoran(
-                id_penyetoran=penyetoran_baru.id,
-                id_jenis_sampah=int(id_jenis_sampah),
-                berat_awal=berat_awal
-            )
-            db.session.add(detail_baru)
+            jumlah_tersimpan = 0
+
+            # Lakukan perulangan (loop) untuk setiap barang yang diinput
+            for jenis_id, berat_str in zip(list_jenis, list_berat):
+                if not jenis_id or not berat_str:
+                    continue
+                
+                # Tangani koma desimal agar jadi titik
+                berat = float(str(berat_str).strip().replace(',', '.'))
+                if berat <= 0:
+                    continue
+
+                # Simpan setiap jenis sampah ke detail penyetoran
+                detail = DetailPenyetoran(
+                    id_penyetoran=penyetoran_baru.id,
+                    id_jenis_sampah=int(jenis_id),
+                    berat_awal=berat,
+                    status='menunggu'
+                )
+                db.session.add(detail)
+                jumlah_tersimpan += 1
+
+            if jumlah_tersimpan == 0:
+                db.session.rollback()
+                flash('Semua kolom jenis sampah dan berat wajib diisi dengan angka yang benar!', 'danger')
+                return redirect(url_for('sekben.terima_setoran'))
+
             db.session.commit()
+            flash(f'Setoran berhasil dicatat! Sebanyak {jumlah_tersimpan} jenis sampah telah masuk ke antrean pengolah.', 'success')
 
-            flash('Setoran berhasil dicatat dan masuk ke antrean pengolah!', 'success')
         except Exception as e:
             db.session.rollback()
-            flash(f'Gagal menyimpan setoran: {str(e)}', 'danger')
+            flash(f'Terjadi kendala saat menyimpan: {str(e)}', 'danger')
 
         return redirect(url_for('sekben.terima_setoran'))
 
