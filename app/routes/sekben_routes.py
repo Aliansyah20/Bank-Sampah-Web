@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 from app.models import User, JenisSampah, Penyetoran, DetailPenyetoran
 from app.extensions import db
 from app.utils import role_required
-
+import re
 sekben_bp = Blueprint('sekben', __name__)
 
 # --- DASHBOARD UTAMA SEKBEN ---
@@ -132,3 +132,36 @@ def kelola_jenis_sampah():
 def kelola_warga():
     daftar_warga = User.query.filter_by(role='warga').order_by(User.id.desc()).all()
     return render_template('dashboard/kelola_warga.html', daftar_warga=daftar_warga)
+
+@sekben_bp.route('/warga/tambah', methods=['POST'])
+@role_required(['sekben'])
+def tambah_warga():
+    nama_lengkap = request.form.get('nama_lengkap', '').strip()
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+
+    if not nama_lengkap or not username or not password:
+        flash('Semua field wajib diisi!', 'danger')
+        return redirect(url_for('sekben.kelola_warga'))
+
+    # Validasi kekuatan password
+    if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password) or not re.search(r'\d', password):
+        flash('Password minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka!', 'danger')
+        return redirect(url_for('sekben.kelola_warga'))
+
+    if User.query.filter_by(username=username).first():
+        flash(f'Username "{username}" sudah terdaftar!', 'danger')
+        return redirect(url_for('sekben.kelola_warga'))
+
+    warga_baru = User(
+        nama_lengkap=nama_lengkap,
+        username=username,
+        password=generate_password_hash(password),
+        role='warga',
+        saldo_terkini=0.00
+    )
+    db.session.add(warga_baru)
+    db.session.commit()
+
+    flash(f'Akun warga {nama_lengkap} berhasil dibuat!', 'success')
+    return redirect(url_for('sekben.kelola_warga'))
