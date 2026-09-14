@@ -152,5 +152,40 @@
             </div>
         </div>
     </div>
+    <!-- KARTU CETAK REKAPITULASI BULANAN -->
+<div class="card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h3 style="margin: 0; color: #1e293b;">🖨️ Rekapitulasi & Cetak Laporan Bulanan</h3>
+            <small style="color: #64748b;">Pilih bulan untuk melihat dan mencetak dokumen pertanggungjawaban kas RW & warga.</small>
+        </div>
+        
+        <form action="/marketing/cetak-laporan" method="GET" target="_blank" style="display: flex; gap: 8px; align-items: center;">
+            <select name="bulan" style="padding: 8px; border-radius: 5px; border: 1px solid #cbd5e1;" required>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9" selected>September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
+
+            <select name="tahun" style="padding: 8px; border-radius: 5px; border: 1px solid #cbd5e1;" required>
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+            </select>
+
+            <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                📄 Lihat & Print Out
+            </button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
