@@ -4,6 +4,8 @@ from sqlalchemy import func
 from app.models import DetailPenyetoran, Penjualan, User, JenisSampah
 from app.extensions import db
 from app.utils import role_required
+import calendar
+from datetime import datetime
 
 marketing_bp = Blueprint('marketing', __name__)
 
@@ -110,3 +112,48 @@ def proses_penjualan(id_jenis):
         'success'
     )
     return redirect(url_for('marketing.dashboard'))
+
+# --- ROUTE CETAK LAPORAN REKAP BULANAN ---
+@marketing_bp.route('/cetak-laporan')
+@role_required(['marketing'])
+def cetak_laporan():
+    # Ambil bulan dan tahun dari parameter URL (bawaan: bulan & tahun berjalan)
+    sekarang = datetime.now()
+    tahun = int(request.args.get('tahun', sekarang.year))
+    bulan = int(request.args.get('bulan', sekarang.month))
+
+    # Tentukan rentang awal dan akhir bulan
+    _, hari_terakhir = calendar.monthrange(tahun, bulan)
+    waktu_mulai = datetime(tahun, bulan, 1, 0, 0, 0)
+    waktu_selesai = datetime(tahun, bulan, hari_terakhir, 23, 59, 59)
+
+    # Ambil seluruh transaksi penjualan pada rentang bulan tersebut
+    daftar_penjualan = Penjualan.query.filter(
+        Penjualan.waktu_jual >= waktu_mulai,
+        Penjualan.waktu_jual <= waktu_selesai
+    ).order_by(Penjualan.waktu_jual.asc()).all()
+
+    # Hitung ringkasan total otomatis
+    total_omzet = sum(p.total_pendapatan for p in daftar_penjualan)
+    total_warga = sum(p.bagian_warga for p in daftar_penjualan)
+    total_kas = sum(p.bagian_kas for p in daftar_penjualan)
+    total_berat = sum(p.detail_penyetoran.berat_verifikasi for p in daftar_penjualan if p.detail_penyetoran and p.detail_penyetoran.berat_verifikasi)
+
+    daftar_nama_bulan = [
+        "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ]
+    nama_bulan = daftar_nama_bulan[bulan]
+
+    return render_template(
+        'dashboard/cetak_laporan_marketing.html',
+        daftar_penjualan=daftar_penjualan,
+        bulan=bulan,
+        tahun=tahun,
+        nama_bulan=nama_bulan,
+        total_omzet=total_omzet,
+        total_warga=total_warga,
+        total_kas=total_kas,
+        total_berat=total_berat,
+        tgl_cetak=sekarang.strftime('%d/%m/%Y %H:%M')
+    )
