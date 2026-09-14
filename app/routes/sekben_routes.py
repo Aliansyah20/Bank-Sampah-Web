@@ -41,27 +41,52 @@ def dashboard():
     )
 
 # --- TERIMA SETORAN SAMPAH DARI WARGA ---
+# --- TERIMA SETORAN SAMPAH DARI WARGA ---
 @sekben_bp.route('/terima-setoran', methods=['GET', 'POST'])
 @role_required(['sekben'])
 def terima_setoran():
     if request.method == 'POST':
         id_warga = request.form.get('id_warga')
         id_jenis_sampah = request.form.get('id_jenis_sampah')
-        berat_awal = request.form.get('berat_awal')
+        berat_awal_raw = request.form.get('berat_awal', '').strip()
 
-        penyetoran_baru = Penyetoran(id_warga=id_warga, id_sekben=session.get('user_id'))
-        db.session.add(penyetoran_baru)
-        db.session.flush()
+        # 1. Validasi input tidak boleh kosong
+        if not id_warga or not id_jenis_sampah or not berat_awal_raw:
+            flash('Semua kolom wajib diisi!', 'danger')
+            return redirect(url_for('sekben.terima_setoran'))
 
-        detail_baru = DetailPenyetoran(
-            id_penyetoran=penyetoran_baru.id,
-            id_jenis_sampah=id_jenis_sampah,
-            berat_awal=berat_awal
-        )
-        db.session.add(detail_baru)
-        db.session.commit()
+        # 2. Tangani tanda koma agar menjadi titik desimal
+        try:
+            berat_awal = float(berat_awal_raw.replace(',', '.'))
+            if berat_awal <= 0:
+                flash('Berat sampah harus lebih besar dari 0 Kg!', 'danger')
+                return redirect(url_for('sekben.terima_setoran'))
+        except ValueError:
+            flash('Format berat sampah tidak valid! Masukkan angka yang benar.', 'danger')
+            return redirect(url_for('sekben.terima_setoran'))
 
-        flash('Setoran berhasil dicatat dan masuk ke antrean pengolah!', 'success')
+        # 3. Simpan ke database dengan proteksi rollback jika terjadi kendala
+        try:
+            penyetoran_baru = Penyetoran(
+                id_warga=int(id_warga), 
+                id_sekben=session.get('user_id')
+            )
+            db.session.add(penyetoran_baru)
+            db.session.flush()
+
+            detail_baru = DetailPenyetoran(
+                id_penyetoran=penyetoran_baru.id,
+                id_jenis_sampah=int(id_jenis_sampah),
+                berat_awal=berat_awal
+            )
+            db.session.add(detail_baru)
+            db.session.commit()
+
+            flash('Setoran berhasil dicatat dan masuk ke antrean pengolah!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Gagal menyimpan setoran: {str(e)}', 'danger')
+
         return redirect(url_for('sekben.terima_setoran'))
 
     warga_list = User.query.filter_by(role='warga').order_by(User.nama_lengkap.asc()).all()
