@@ -134,9 +134,9 @@
                     <tbody>
                         {% for p in penjualan %}
                         <tr>
-                            <td>{{ p.waktu_jual.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ p.tanggal_jual.strftime('%d/%m/%Y %H:%M') if p.tanggal_jual else '-' }}</td>
                             <td><b>{{ p.nama_pengepul }}</b></td>
-                            <td>{{ p.detail_penyetoran.jenis_sampah.nama_jenis }}</td>
+                            <td>{{ p.detail.jenis_sampah.nama_jenis if p.detail and p.detail.jenis_sampah else '-' }}</td>
                             <td>Rp {{ "{:,.0f}".format(p.harga_per_kg) }}</td>
                             <td style="font-weight: bold;">Rp {{ "{:,.2f}".format(p.total_pendapatan) }}</td>
                             <td style="color: #2563eb; font-weight: bold;">Rp {{ "{:,.2f}".format(p.bagian_warga) }}</td>
