@@ -158,13 +158,16 @@
             </tr>
         </thead>
         <tbody>
-            {% for p in daftar_penjualan %}
+           {% for p in daftar_penjualan %}
             <tr>
                 <td class="text-center">{{ loop.index }}</td>
-                <td class="text-center">{{ p.waktu_jual.strftime('%d/%m/%Y %H:%M') }}</td>
+                <!-- 1. Ganti waktu_jual -> tanggal_jual -->
+                <td class="text-center">{{ p.tanggal_jual.strftime('%d/%m/%Y %H:%M') if p.tanggal_jual else '-' }}</td>
                 <td>{{ p.nama_pengepul }}</td>
-                <td>{{ p.detail_penyetoran.jenis_sampah.nama_jenis }}</td>
-                <td class="text-center">{{ "{:.2f}".format(p.detail_penyetoran.berat_verifikasi) }}</td>
+                <!-- 2. Ganti detail_penyetoran -> detail -->
+                <td>{{ p.detail.jenis_sampah.nama_jenis if p.detail and p.detail.jenis_sampah else '-' }}</td>
+                <!-- 3. Ganti detail_penyetoran -> detail -->
+                <td class="text-center">{{ "{:.2f}".format(p.detail.berat_verifikasi) if p.detail and p.detail.berat_verifikasi else '-' }}</td>
                 <td class="text-right">Rp {{ "{:,.0f}".format(p.harga_per_kg) }}</td>
                 <td class="text-right"><b>Rp {{ "{:,.2f}".format(p.total_pendapatan) }}</b></td>
                 <td class="text-right">Rp {{ "{:,.2f}".format(p.bagian_warga) }}</td>
