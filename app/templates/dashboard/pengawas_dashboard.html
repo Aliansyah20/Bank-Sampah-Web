@@ -54,15 +54,18 @@
 <body>
 
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-title">
-                <h2>🔎 Panel Pengawas Bank Sampah (Tingkat RW)</h2>
-                <small>Pemantauan Real-Time Operasional & Partisipasi Warga — Tanggal: <b>{{ tanggal_hari_ini }}</b></small>
-            </div>
+        <!-- Tombol Keluar di Kiri Atas -->
+        <div style="margin-bottom: 15px;">
+            <a href="/auth/logout" style="display: inline-flex; align-items: center; gap: 6px; background: #e74c3c; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                🚪 Keluar
+            </a>
+        </div>
+
+        <div class="header" style="margin-bottom: 25px;">
             <div>
-                <span style="background: #e2e8f0; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-right: 10px;">Role: Pengawas RW</span>
-                <a href="/auth/logout" class="btn-logout">Keluar</a>
+                <!-- Judul Dashboard Masing-masing -->
+                <h2 style="margin: 0 0 5px 0;">Dashboard</h2>
+                <small>Halo, {{ session.get('nama_lengkap') }}!</small>
             </div>
         </div>
 
