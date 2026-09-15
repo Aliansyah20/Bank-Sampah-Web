@@ -129,15 +129,15 @@ def cetak_laporan():
 
     # Ambil seluruh transaksi penjualan pada rentang bulan tersebut
     daftar_penjualan = Penjualan.query.filter(
-        Penjualan.waktu_jual >= waktu_mulai,
-        Penjualan.waktu_jual <= waktu_selesai
-    ).order_by(Penjualan.waktu_jual.asc()).all()
+        Penjualan.tanggal_jual >= waktu_mulai,
+        Penjualan.tanggal_jual <= waktu_selesai
+    ).order_by(Penjualan.tanggal_jual.asc()).all()
 
     # Hitung ringkasan total otomatis
     total_omzet = sum(p.total_pendapatan for p in daftar_penjualan)
     total_warga = sum(p.bagian_warga for p in daftar_penjualan)
     total_kas = sum(p.bagian_kas for p in daftar_penjualan)
-    total_berat = sum(p.detail_penyetoran.berat_verifikasi for p in daftar_penjualan if p.detail_penyetoran and p.detail_penyetoran.berat_verifikasi)
+    total_berat = sum(p.detail.berat_verifikasi for p in daftar_penjualan if p.detail and p.detail.berat_verifikasi)
 
     daftar_nama_bulan = [
         "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
