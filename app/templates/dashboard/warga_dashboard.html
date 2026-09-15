@@ -32,10 +32,21 @@
 </head>
 <body>
 
-    <div class="navbar">
-        <h2>🌱 Bank Sampah - Portal Warga</h2>
-        <a href="/auth/logout" class="btn-logout">🚪 Keluar</a>
-    </div>
+    <div class="container">
+        <!-- Tombol Keluar di Kiri Atas -->
+        <div style="margin-bottom: 15px;">
+            <a href="/auth/logout" style="display: inline-flex; align-items: center; gap: 6px; background: #e74c3c; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                🚪 Keluar
+            </a>
+        </div>
+
+        <div class="header" style="margin-bottom: 25px;">
+            <div>
+                <!-- Judul Dashboard Masing-masing -->
+                <h2 style="margin: 0 0 5px 0;">Dashboard</h2>
+                <small>Halo, {{ session.get('nama_lengkap') }}!</small>
+            </div>
+        </div>
 
     <div class="container">
         <!-- Kartu Sambutan -->
