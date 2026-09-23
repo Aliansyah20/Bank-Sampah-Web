@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pendaftaran Petugas - Sistem Bank Sampah SADA</title>
-    <!-- Font Google Plus Jakarta Sans -->
+    <!-- Google Font Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -195,7 +195,7 @@
             transform: translateY(0);
         }
 
-        /* Alert Notifications */
+        /* Alert Notifikasi */
         .alert {
             padding: 11px 14px;
             border-radius: 10px;
@@ -247,8 +247,9 @@
         </div>
 
         <h2>Daftar Petugas</h2>
-        <p class="subtitle">Registrasi pengurus operasional SADA. Akun warga dibuat langsung oleh Sekben.</p>
+        <p class="subtitle">Registrasi pengurus operasional SADA. Akun warga didaftarkan langsung oleh Sekben.</p>
 
+        <!-- Pesan Notifikasi Flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for cat, msg in messages %}
@@ -260,6 +261,7 @@
         {% endwith %}
 
         <form action="/auth/register" method="POST">
+            <!-- 1. Nama Lengkap -->
             <div class="form-group">
                 <label for="nama_lengkap">Nama Lengkap</label>
                 <div class="input-wrapper">
@@ -267,6 +269,7 @@
                 </div>
             </div>
 
+            <!-- 2. Username -->
             <div class="form-group">
                 <label for="username">Username</label>
                 <div class="input-wrapper">
@@ -274,18 +277,32 @@
                 </div>
             </div>
 
+            <!-- 3. Pilihan Role Petugas -->
             <div class="form-group">
                 <label for="role">Posisi / Role Petugas</label>
                 <div class="input-wrapper">
-                    <select id="role" name="role" required>
+                    <select id="role" name="role" onchange="toggleKodeRW(this.value)" required>
                         <option value="" disabled selected>-- Pilih Posisi Bank Sampah --</option>
                         <option value="sekben">Sekretaris & Bendahara (Sekben)</option>
                         <option value="pengolah">Tim Penimbang / Verifikator (Pengolah)</option>
                         <option value="marketing">Divisi Penjualan Pengepul (Marketing)</option>
+                        <option value="pengawas">Pengawas (Ketua RW / Otorisator)</option>
                     </select>
                 </div>
             </div>
 
+            <!-- 4. Kode Otorisasi Khusus RW (Hanya muncul jika memilih Pengawas) -->
+            <div class="form-group" id="fieldKodeRW" style="display: none;">
+                <label for="kode_rw" style="color: #fcd34d;">🔑 Kode Otorisasi Khusus RW</label>
+                <div class="input-wrapper">
+                    <input type="password" id="kode_rw" name="kode_rw" placeholder="Masukkan PIN / Kode RW">
+                </div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                    *Wajib diisi khusus pendaftar Pengawas RW.
+                </div>
+            </div>
+
+            <!-- 5. Password -->
             <div class="form-group">
                 <label for="regPassword">Kata Sandi</label>
                 <div class="input-wrapper">
@@ -302,6 +319,7 @@
                 </div>
             </div>
 
+            <!-- 6. Konfirmasi Password -->
             <div class="form-group">
                 <label for="confirmPassword">Konfirmasi Kata Sandi</label>
                 <div class="input-wrapper">
@@ -324,6 +342,20 @@
     </div>
 
     <script>
+        // Fungsi memunculkan form Kode RW jika memilih Pengawas
+        function toggleKodeRW(role) {
+            const field = document.getElementById('fieldKodeRW');
+            const input = document.getElementById('kode_rw');
+            if (role === 'pengawas') {
+                field.style.display = 'block';
+                input.required = true;
+            } else {
+                field.style.display = 'none';
+                input.required = false;
+            }
+        }
+
+        // Fungsi lihat / intip password dengan ikon mata SVG
         function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
             const isPassword = input.type === "password";
