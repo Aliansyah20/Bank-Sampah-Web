@@ -7,14 +7,14 @@ class User(db.Model):
     nama_lengkap = db.Column(db.String(100), nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default='warga') # sekben, pengolah, marketing, pengawas, warga
+    role = db.Column(db.String(20), nullable=False, default='warga')
     saldo_terkini = db.Column(db.Numeric(12, 2), default=0.00)
-    # Status verifikasi: Warga langsung aktif, admin/petugas butuh persetujuan pengawas
+    
+    # TAMBAHKAN KOLOM RW DI SINI:
+    rw = db.Column(db.String(20), nullable=True) # Input manual (misal: "RW 05", "RW 02", dll)
+
     is_aktif = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    penyetoran_warga = db.relationship('Penyetoran', foreign_keys='Penyetoran.id_warga', backref='warga', lazy=True)
-
 # Tambahkan Tabel Pengeluaran Baru di models.py
 class Pengeluaran(db.Model):
     __tablename__ = 'pengeluaran'
