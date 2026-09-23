@@ -146,6 +146,12 @@
                     📦 Kelola Jenis Sampah
                 </a>
             </li>
+            <li>
+                <a href="{{ url_for('sekben.kelola_pengeluaran') }}" 
+                class="{% if request.endpoint == 'sekben.kelola_pengeluaran' %}active{% endif %}">
+                    💳 Data Pengeluaran
+                </a>
+            </li>
         </ul>
 
         <a href="/auth/logout" class="btn-keluar">
