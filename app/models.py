@@ -7,13 +7,26 @@ class User(db.Model):
     nama_lengkap = db.Column(db.String(100), nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    # Role: sekben, pengolah, marketing, pengawas, warga
-    role = db.Column(db.String(20), nullable=False, default='warga')
+    role = db.Column(db.String(20), nullable=False, default='warga') # sekben, pengolah, marketing, pengawas, warga
     saldo_terkini = db.Column(db.Numeric(12, 2), default=0.00)
+    # Status verifikasi: Warga langsung aktif, admin/petugas butuh persetujuan pengawas
+    is_aktif = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     penyetoran_warga = db.relationship('Penyetoran', foreign_keys='Penyetoran.id_warga', backref='warga', lazy=True)
 
+# Tambahkan Tabel Pengeluaran Baru di models.py
+class Pengeluaran(db.Model):
+    __tablename__ = 'pengeluaran'
+    id = db.Column(db.Integer, primary_key=True)
+    id_warga = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True) # Warga yang mencairkan saldo
+    id_pengawas = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Petugas pengawas yang mencairkan
+    nominal = db.Column(db.Numeric(12, 2), nullable=False)
+    keterangan = db.Column(db.String(255), nullable=True)
+    tanggal = db.Column(db.DateTime, default=datetime.utcnow)
+
+    warga = db.relationship('User', foreign_keys=[id_warga], backref='riwayat_penarikan', lazy=True)
+    pengawas = db.relationship('User', foreign_keys=[id_pengawas], backref='pengeluaran_disetujui', lazy=True)
 class JenisSampah(db.Model):
     __tablename__ = 'jenis_sampah'
     id = db.Column(db.Integer, primary_key=True)
