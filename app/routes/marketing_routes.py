@@ -78,8 +78,8 @@ def proses_penjualan(id_jenis):
     for item in daftar_item:
         berat_item = Decimal(str(item.berat_verifikasi))
         pendapatan_item = berat_item * harga_per_kg
-        bagian_warga = pendapatan_item * Decimal('0.80')  # 80% Hak Warga
-        bagian_kas = pendapatan_item * Decimal('0.20')    # 20% Kas RW
+        bagian_warga = pendapatan_item * Decimal('0.60')  # 60% Hak Warga
+        bagian_kas = pendapatan_item * Decimal('0.40')    # 40% Kas RW
 
         total_pendapatan_kategori += pendapatan_item
         total_bagi_warga += bagian_warga
