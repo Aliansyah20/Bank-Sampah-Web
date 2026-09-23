@@ -141,12 +141,13 @@ def tambah_warga():
     nama_lengkap = request.form.get('nama_lengkap', '').strip()
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
+    rw_asal = request.form.get('rw', '').strip()  # Ambil input manual RW
 
-    if not nama_lengkap or not username or not password:
-        flash('Semua field wajib diisi!', 'danger')
+    if not nama_lengkap or not username or not password or not rw_asal:
+        flash('Semua field termasuk asal RW wajib diisi!', 'danger')
         return redirect(url_for('sekben.kelola_warga'))
 
-    # Validasi kekuatan password
+    # Validasi password
     if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password) or not re.search(r'\d', password):
         flash('Password minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka!', 'danger')
         return redirect(url_for('sekben.kelola_warga'))
@@ -160,12 +161,14 @@ def tambah_warga():
         username=username,
         password=generate_password_hash(password),
         role='warga',
-        saldo_terkini=0.00
+        rw=rw_asal,  # Simpan asal RW warga
+        saldo_terkini=0.00,
+        is_aktif=True
     )
     db.session.add(warga_baru)
     db.session.commit()
 
-    flash(f'Akun warga {nama_lengkap} berhasil dibuat!', 'success')
+    flash(f'Akun warga {nama_lengkap} dari {rw_asal} berhasil didaftarkan!', 'success')
     return redirect(url_for('sekben.kelola_warga'))
 
 # --- MENU DATA PENGELUARAN UNTUK SEKBEN ---
