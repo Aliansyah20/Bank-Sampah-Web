@@ -8,12 +8,14 @@
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border-bottom: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
     th { background: #2c3e50; color: white; }
-    .badge-user { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
     
-    /* Layout Form Pendaftaran Warga */
+    .badge-user { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    .badge-rw { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+
+    /* Layout Form Pendaftaran Warga Bersekat RW */
     .form-grid {
         display: grid;
-        grid-template-columns: 1.5fr 1fr 1.2fr auto;
+        grid-template-columns: 1.4fr 0.8fr 1fr 1.2fr auto;
         gap: 12px;
         align-items: flex-end;
     }
@@ -39,7 +41,6 @@
         outline: none;
     }
 
-    /* Container Password dengan Ikon Mata */
     .password-container {
         position: relative;
         width: 100%;
@@ -65,42 +66,41 @@
         background: #27ae60;
         color: white;
         border: none;
-        padding: 11px 20px;
+        padding: 11px 18px;
         border-radius: 6px;
         font-weight: 600;
         cursor: pointer;
         height: 42px;
     }
-    .btn-submit:hover {
-        background: #219150;
-    }
+    .btn-submit:hover { background: #219150; }
 
-    @media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-        .btn-submit {
-            width: 100%;
-        }
+    @media (max-width: 900px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .btn-submit { width: 100%; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-    <h2>👥 Kelola Data & Akun Warga</h2>
-    <p style="color: #64748b; margin-bottom: 20px;">Daftarkan akun warga baru dan pantau perolehan saldo tabungan sampah di tingkat RW.</p>
+    <h2>👥 Kelola Data & Akun Warga Antar-RW</h2>
+    <p style="color: #64748b; margin-bottom: 20px;">Daftarkan warga baru dari berbagai RW dan pantau perolehan saldo tabungan per orangan.</p>
 
-    <!-- KARTU FORM DAFTARKAN WARGA (DITAMBAHKAN DI SINI) -->
+    <!-- FORM DAFTARKAN WARGA DENGAN ASAL RW MANUAL -->
     <div class="card">
         <h3 style="margin-top: 0; margin-bottom: 8px;">➕ Daftarkan Akun Warga Baru</h3>
         <p style="color: #64748b; font-size: 13px; margin-top: 0; margin-bottom: 18px;">
-            Password minimal 8 karakter, wajib kombinasi huruf besar, huruf kecil, dan angka.
+            Input asal RW diisi manual (misal: RW 01, RW 05, atau nama lingkungan lain).
         </p>
 
         <form action="/sekben/warga/tambah" method="POST" class="form-grid">
             <div class="form-group">
-                <label>Nama Lengkap Warga</label>
+                <label>Nama Lengkap</label>
                 <input type="text" name="nama_lengkap" placeholder="Contoh: Siti Aisyah" required>
+            </div>
+
+            <div class="form-group">
+                <label>Asal RW</label>
+                <input type="text" name="rw" placeholder="Contoh: RW 03" required>
             </div>
 
             <div class="form-group">
@@ -116,34 +116,36 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-submit">Daftarkan Akun</button>
+            <button type="submit" class="btn-submit">Daftarkan Warga</button>
         </form>
     </div>
 
-    <!-- KARTU TABEL DATA WARGA -->
+    <!-- TABEL DATA WARGA -->
     <div class="card">
         <h3 style="margin-top: 0;">Daftar Nasabah / Warga Terdaftar</h3>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 90px;">ID Warga</th>
+                        <th style="width: 85px;">ID</th>
+                        <th>Asal RW</th>
                         <th>Nama Lengkap</th>
                         <th>Username Akun</th>
-                        <th>Saldo Tabungan Terkini</th>
+                        <th>Saldo Tabungan</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for w in daftar_warga %}
                     <tr>
                         <td><b style="color: #2c3e50; font-family: monospace;">WRG-{{ "%03d"|format(w.id) }}</b></td>
+                        <td><span class="badge-rw">{{ w.rw or 'RW Luar' }}</span></td>
                         <td><b>{{ w.nama_lengkap }}</b></td>
                         <td><span class="badge-user">@{{ w.username }}</span></td>
                         <td style="color: #27ae60; font-weight: bold;">Rp {{ "{:,.2f}".format(w.saldo_terkini) }}</td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" style="text-align: center; color: #888; padding: 20px;">Belum ada warga yang didaftarkan di sistem.</td>
+                        <td colspan="5" style="text-align: center; color: #888; padding: 20px;">Belum ada warga yang didaftarkan.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -151,7 +153,6 @@
         </div>
     </div>
 
-    <!-- Script Show/Hide Password -->
     <script>
         function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
