@@ -3,7 +3,9 @@ from werkzeug.security import generate_password_hash
 from app.models import User, JenisSampah, Penyetoran, DetailPenyetoran
 from app.extensions import db
 from app.utils import role_required
+from app.models import Pengeluaran
 import re
+
 sekben_bp = Blueprint('sekben', __name__)
 
 # --- DASHBOARD UTAMA SEKBEN ---
@@ -165,3 +167,11 @@ def tambah_warga():
 
     flash(f'Akun warga {nama_lengkap} berhasil dibuat!', 'success')
     return redirect(url_for('sekben.kelola_warga'))
+
+# --- MENU DATA PENGELUARAN UNTUK SEKBEN ---
+@sekben_bp.route('/pengeluaran')
+@role_required(['sekben'])
+def kelola_pengeluaran():
+    daftar_pengeluaran = Pengeluaran.query.order_by(Pengeluaran.id.desc()).all()
+    total_keluar = sum(p.nominal for p in daftar_pengeluaran)
+    return render_template('dashboard/sekben_pengeluaran.html', daftar=daftar_pengeluaran, total_keluar=total_keluar)
