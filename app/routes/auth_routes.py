@@ -35,50 +35,65 @@ def login():
 
 
 # --- HALAMAN DAFTAR AKUN (REGISTRASI) ---
+# Tentukan kode rahasia RW (bisa kamu ubah sesuka hati)
+KODE_RAHASIA_PENGAWAS = "RW2026"
+
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    if 'user_id' in session:
+        return redirect_by_role(session.get('role'))
+
     if request.method == 'POST':
         nama_lengkap = request.form.get('nama_lengkap', '').strip()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        role = request.form.get('role', '').strip()
+        konfirmasi_password = request.form.get('konfirmasi_password', '').strip()
+        role = request.form.get('role', '').strip().lower()
+        kode_rw = request.form.get('kode_rw', '').strip()
 
-        # 1. Kunci agar role warga tidak bisa didaftarkan dari luar
-        if role not in ['sekben', 'pengolah', 'marketing']:
-            flash('Pendaftaran warga hanya dapat dilakukan secara terpusat oleh Sekben!', 'danger')
+        # 1. Pastikan role valid
+        if role not in ['sekben', 'pengolah', 'marketing', 'pengawas']:
+            flash('Pilihan posisi petugas tidak valid!', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 2. Validasi kekuatan kata sandi (Min. 8 karakter, huruf besar, huruf kecil, dan angka)
-        if len(password) < 8:
-            flash('Kata sandi terlalu pendek! Minimal 8 karakter.', 'danger')
+        # 2. Validasi khusus Pengawas (Wajib punya kode rahasia RW)
+        is_aktif_status = False
+        if role == 'pengawas':
+            if kode_rw != KODE_RAHASIA_PENGAWAS:
+                flash('Kode Otorisasi RW salah! Anda tidak berhak mendaftar sebagai Pengawas.', 'danger')
+                return redirect(url_for('auth.register'))
+            is_aktif_status = True  # Pengawas langsung aktif karena memasukkan kode yang sah
+
+        # 3. Validasi Password
+        if password != konfirmasi_password:
+            flash('Konfirmasi kata sandi tidak cocok!', 'danger')
             return redirect(url_for('auth.register'))
-        if not re.search(r'[A-Z]', password):
-            flash('Kata sandi wajib mengandung minimal satu huruf kapital (A-Z)!', 'danger')
-            return redirect(url_for('auth.register'))
-        if not re.search(r'[a-z]', password):
-            flash('Kata sandi wajib mengandung minimal satu huruf kecil (a-z)!', 'danger')
-            return redirect(url_for('auth.register'))
-        if not re.search(r'\d', password):
-            flash('Kata sandi wajib mengandung minimal satu angka (0-9)!', 'danger')
+
+        if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password) or not re.search(r'\d', password):
+            flash('Kata sandi harus minimal 8 karakter, ada huruf besar, kecil, dan angka!', 'danger')
             return redirect(url_for('auth.register'))
 
         if User.query.filter_by(username=username).first():
-            flash('Username sudah digunakan, silakan pilih username lain!', 'danger')
+            flash('Username sudah digunakan, silakan pilih yang lain.', 'danger')
             return redirect(url_for('auth.register'))
 
-        # Buat akun petugas (is_aktif=False menunggu verifikasi Pengawas)
-        petugas_baru = User(
+        # 4. Simpan Akun
+        user_baru = User(
             nama_lengkap=nama_lengkap,
             username=username,
             password=generate_password_hash(password),
             role=role,
             saldo_terkini=0.00,
-            is_aktif=False
+            is_aktif=is_aktif_status
         )
-        db.session.add(petugas_baru)
+        db.session.add(user_baru)
         db.session.commit()
 
-        flash('Pendaftaran berhasil! Akun petugas Anda sedang menunggu persetujuan Pengawas RW sebelum dapat masuk.', 'warning')
+        if role == 'pengawas':
+            flash('Akun Pengawas RW berhasil didaftarkan dan langsung aktif! Silakan login.', 'success')
+        else:
+            flash('Pendaftaran berhasil! Akun Anda menunggu verifikasi oleh Pengawas RW.', 'warning')
+            
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
