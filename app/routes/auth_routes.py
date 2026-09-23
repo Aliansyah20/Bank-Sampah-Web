@@ -37,28 +37,18 @@ def login():
 # --- HALAMAN DAFTAR AKUN (REGISTRASI) ---
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    # Jika sudah login, langsung arahkan ke dashboard masing-masing
-    if 'user_id' in session:
-        return redirect_by_role(session.get('role'))
-
     if request.method == 'POST':
         nama_lengkap = request.form.get('nama_lengkap', '').strip()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        konfirmasi_password = request.form.get('konfirmasi_password', '').strip()
-        role = request.form.get('role', '').strip().lower()
+        role = request.form.get('role', '').strip()
 
-        # 1. Pastikan pendaftaran publik hanya untuk petugas (bukan warga)
+        # 1. Kunci agar role warga tidak bisa didaftarkan dari luar
         if role not in ['sekben', 'pengolah', 'marketing']:
-            flash('Pendaftaran akun warga hanya dapat dibuat langsung oleh Sekben!', 'danger')
+            flash('Pendaftaran warga hanya dapat dilakukan secara terpusat oleh Sekben!', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 2. Validasi kecocokan konfirmasi password
-        if password != konfirmasi_password:
-            flash('Konfirmasi kata sandi tidak cocok!', 'danger')
-            return redirect(url_for('auth.register'))
-
-        # 3. Validasi kekuatan password (min 8 karakter, huruf besar, huruf kecil, dan angka)
+        # 2. Validasi kekuatan kata sandi (Min. 8 karakter, huruf besar, huruf kecil, dan angka)
         if len(password) < 8:
             flash('Kata sandi terlalu pendek! Minimal 8 karakter.', 'danger')
             return redirect(url_for('auth.register'))
@@ -72,24 +62,23 @@ def register():
             flash('Kata sandi wajib mengandung minimal satu angka (0-9)!', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 4. Cek ketersediaan username
         if User.query.filter_by(username=username).first():
-            flash(f'Username "{username}" sudah digunakan, silakan gunakan username lain.', 'danger')
+            flash('Username sudah digunakan, silakan pilih username lain!', 'danger')
             return redirect(url_for('auth.register'))
 
-        # 5. Simpan akun petugas baru (status dinonaktifkan menunggu persetujuan pengawas)
+        # Buat akun petugas (is_aktif=False menunggu verifikasi Pengawas)
         petugas_baru = User(
             nama_lengkap=nama_lengkap,
             username=username,
             password=generate_password_hash(password),
             role=role,
             saldo_terkini=0.00,
-            is_aktif=False  # Wajib diverifikasi oleh pengawas terlebih dahulu
+            is_aktif=False
         )
         db.session.add(petugas_baru)
         db.session.commit()
 
-        flash('Pendaftaran berhasil! Akun Anda sedang menunggu persetujuan Pengawas RW sebelum dapat masuk.', 'warning')
+        flash('Pendaftaran berhasil! Akun petugas Anda sedang menunggu persetujuan Pengawas RW sebelum dapat masuk.', 'warning')
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
