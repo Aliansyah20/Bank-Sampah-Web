@@ -2,106 +2,38 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - SADA (Sampah Jadi Dana)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Sistem Bank Sampah SADA</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #27ae60 100%);
-            padding: 20px;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.96);
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 420px;
-            padding: 40px 35px;
-            text-align: center;
-        }
-        .brand-logo {
-            width: 65px;
-            height: 65px;
-            background: #e8f8f5;
-            color: #27ae60;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 30px;
-            margin: 0 auto 15px;
-        }
-        .login-card h2 { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-        .login-card p.subtitle { color: #7f8c8d; font-size: 14px; margin-bottom: 25px; }
-        
-        .form-group { text-align: left; margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #34495e; margin-bottom: 6px; }
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1.5px solid #dcdde1;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        .form-group input:focus { border-color: #27ae60; box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.15); }
-        
-        .btn-submit {
-            width: 100%;
-            background: #27ae60;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s ease, transform 0.1s ease;
-        }
-        .btn-submit:hover { background: #219150; }
-        .btn-submit:active { transform: scale(0.99); }
+        body { font-family: Arial, sans-serif; background: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .auth-card { background: white; padding: 32px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); width: 100%; max-width: 380px; box-sizing: border-box; }
+        .auth-card h2 { margin: 0 0 5px 0; color: #1e293b; text-align: center; }
+        .auth-card p { color: #64748b; font-size: 13px; text-align: center; margin: 0 0 20px 0; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #334155; }
+        .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
 
-        .register-box {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #edf2f7;
-            font-size: 14px;
-            color: #555;
-        }
-        .register-box a { color: #2980b9; font-weight: 700; text-decoration: none; }
-        .register-box a:hover { text-decoration: underline; }
+        .password-field { position: relative; width: 100%; }
+        .password-field input { padding-right: 42px; }
+        .toggle-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px; color: #64748b; }
 
-        /* Alert styling */
-        .alert {
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .alert-danger { background: #fde8e8; color: #c81e1e; border: 1px solid #f8b4b4; }
-        .alert-success { background: #def7ec; color: #03543f; border: 1px solid #bcf0da; }
-        .alert-info { background: #e1effe; color: #1e429f; border: 1px solid #b4c6fc; }
+        .btn-auth { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-auth:hover { background: #1d4ed8; }
+        .alert { padding: 10px 14px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; }
+        .alert-danger { background: #fee2e2; color: #991b1b; }
+        .alert-warning { background: #fef3c7; color: #92400e; }
+        .alert-success { background: #dcfce7; color: #166534; }
     </style>
 </head>
 <body>
+    <div class="auth-card">
+        <h2>♻️ SADA</h2>
+        <p>Sampah Jadi Dana — Masuk ke Sistem RW</p>
 
-    <div class="login-card">
-        <div class="brand-logo">♻️</div>
-        <h2>SADA</h2>
-        <p class="subtitle">Sampah Jadi Dana — Sistem Pengelolaan & Saldo RW</p>
-
-        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% for cat, msg in messages %}
+                    <div class="alert alert-{{ cat }}">{{ msg }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -109,22 +41,36 @@
         <form action="/auth/login" method="POST">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" placeholder="Masukkan username Anda" required autofocus>
+                <input type="text" name="username" placeholder="Masukkan username Anda" required>
             </div>
 
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="Masukkan kata sandi" required>
+                <label>Kata Sandi</label>
+                <div class="password-field">
+                    <input type="password" id="loginPassword" name="password" placeholder="Masukkan kata sandi" required>
+                    <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)" title="Tampilkan/Sembunyikan">👁️</button>
+                </div>
             </div>
 
-            <button type="submit" class="btn-submit">MASUK KE SISTEM</button>
+            <button type="submit" class="btn-auth">Masuk ke Akun</button>
         </form>
 
-        <div class="register-box">
-            Belum punya akun? <br>
-            <a href="/auth/register">✨ Daftar Akun Baru di Sini</a>
+        <div style="text-align: center; margin-top: 20px; font-size: 13px;">
+            Petugas baru? <a href="/auth/register" style="color: #16a34a; text-decoration: none; font-weight: bold;">Daftar akun petugas</a>
         </div>
     </div>
 
+    <script>
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.textContent = "🙈";
+            } else {
+                input.type = "password";
+                btn.textContent = "👁️";
+            }
+        }
+    </script>
 </body>
 </html>
