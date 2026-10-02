@@ -53,10 +53,23 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Kartu Total Kas RW Terkumpul -->
-        <div class="stat-card">
-            <span style="font-size: 13px; text-transform: uppercase;">Total Kontribusi Kas RW (20%)</span>
-            <h2 style="margin: 8px 0 0 0; font-size: 26px;">Rp {{ "{:,.2f}".format(total_kas) }}</h2>
+        <!-- GRID STATISTIK MARKETING -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 25px;">
+            <!-- Kartu 1: Total Berat Sampah Terjual -->
+            <div class="stat-card" style="background: #2563eb; margin-bottom: 0;">
+                <span style="font-size: 13px; text-transform: uppercase; opacity: 0.9;">⚖️ Total Sampah Terjual</span>
+                <h2 style="margin: 8px 0 0 0; font-size: 28px;">
+                    {{ "{:,.2f}".format(total_berat_terjual) }} <small style="font-size: 16px; font-weight: normal;">Kg</small>
+                </h2>
+            </div>
+
+            <!-- Kartu 2: Total Kas RW Terkumpul -->
+            <div class="stat-card" style="background: #16a34a; margin-bottom: 0;">
+                <span style="font-size: 13px; text-transform: uppercase; opacity: 0.9;">💰 Kas RW Terkumpul (40%)</span>
+                <h2 style="margin: 8px 0 0 0; font-size: 28px;">
+                    Rp {{ "{:,.2f}".format(total_kas) }}
+                </h2>
+            </div>
         </div>
 
         <!-- 1. KARTU STOK SAMPAH TERKUMPUL (BAGIAN INI YANG BERUBAH TOTAL) -->
