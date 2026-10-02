@@ -1,7 +1,7 @@
 from decimal import Decimal
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from sqlalchemy import func
-from app.models import User, Penjualan, Pengeluaran
+from app.models import User, Penjualan, Pengeluaran, DetailPenyetoran
 from app.extensions import db
 from app.utils import role_required
 
@@ -15,13 +15,20 @@ def dashboard():
     total_saldo_warga = db.session.query(func.sum(User.saldo_terkini)).filter_by(role='warga').scalar() or Decimal('0.00')
     total_seluruh_saldo = total_kas_rw + total_saldo_warga
 
-    # 2. Antrean Verifikasi Registrasi Petugas (Admin selain warga)
+    #2.Total berat yang terjual 
+    total_berat_terjual = (
+        db.session.query(func.sum(DetailPenyetoran.berat_verifikasi))
+        .filter(DetailPenyetoran.status == 'terjual')
+        .scalar()
+    ) or Decimal('0.00')
+
+    # 3. Antrean Verifikasi Registrasi Petugas (Admin selain warga)
     antrean_petugas = User.query.filter(User.role != 'warga', User.is_aktif == False).all()
 
-    # 3. Data Warga untuk Pencairan Saldo
+    # 4. Data Warga untuk Pencairan Saldo
     daftar_warga = User.query.filter_by(role='warga').order_by(User.nama_lengkap.asc()).all()
 
-    # 4. Riwayat Pengeluaran / Penarikan Dana
+    # 5. Riwayat Pengeluaran / Penarikan Dana
     riwayat_pengeluaran = Pengeluaran.query.order_by(Pengeluaran.id.desc()).limit(20).all()
 
     return render_template(
@@ -31,7 +38,8 @@ def dashboard():
         total_seluruh_saldo=total_seluruh_saldo,
         antrean_petugas=antrean_petugas,
         daftar_warga=daftar_warga,
-        riwayat_pengeluaran=riwayat_pengeluaran
+        riwayat_pengeluaran=riwayat_pengeluaran,
+        total_berat_terjual=total_berat_terjual
     )
 
 # --- VERIFIKASI REGISTRASI ADMIN / PETUGAS ---
