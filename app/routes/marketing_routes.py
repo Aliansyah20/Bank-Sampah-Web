@@ -30,11 +30,17 @@ def dashboard():
     riwayat_penjualan = Penjualan.query.order_by(Penjualan.id.desc()).limit(20).all()
     total_kas_terkumpul = sum(p.bagian_kas for p in riwayat_penjualan)
 
+    total_berat_terjual = sum(
+        p.detail.berat_verifikasi for p in riwayat_penjualan 
+        if p.detail and p.detail.berat_verifikasi
+    )
+
     return render_template(
         'dashboard/marketing_dashboard.html',
         stok=stok_kategori,
         penjualan=riwayat_penjualan,
-        total_kas=total_kas_terkumpul
+        total_kas=total_kas_terkumpul,
+        total_berat_terjual=total_berat_terjual
     )
 
 @marketing_bp.route('/jual/<int:id_jenis>', methods=['POST'])
