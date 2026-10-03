@@ -36,18 +36,31 @@
             {% endif %}
         {% endwith %}
 
-        <!-- KARTU RINGKASAN TOTAL SALDO -->
-        <div class="stats-grid">
+        <!-- KARTU RINGKASAN METRIK OPERASIONAL & KEUANGAN RW -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            <!-- Kartu Baru: Total Berat Sampah Terjual -->
+            <div class="stat-box" style="background: #0284c7;">
+                <small>TOTAL SAMPAH TERJUAL</small>
+                <h2 style="margin: 8px 0 0 0;">
+                    {{ "{:,.2f}".format(total_berat_terjual) }} <span style="font-size: 16px; font-weight: normal;">Kg</span>
+                </h2>
+            </div>
+
+            <!-- Total Saldo Kas RW -->
             <div class="stat-box" style="background: #2563eb;">
                 <small>TOTAL SALDO KAS RW (40%)</small>
                 <h2 style="margin: 8px 0 0 0;">Rp {{ "{:,.2f}".format(total_kas_rw) }}</h2>
             </div>
+
+            <!-- Total Saldo Tabungan Seluruh Warga -->
             <div class="stat-box" style="background: #16a34a;">
-                <small>TOTAL SALDO SELURUH WARGA (60%)</small>
+                <small>TOTAL TABUNGAN WARGA (60%)</small>
                 <h2 style="margin: 8px 0 0 0;">Rp {{ "{:,.2f}".format(total_saldo_warga) }}</h2>
             </div>
+
+            <!-- Total Keseluruhan -->
             <div class="stat-box" style="background: #0f172a;">
-                <small>TOTAL SALDO KESELURUHAN BANK SAMPAH</small>
+                <small>TOTAL DANA BERPUTAR DI BANK</small>
                 <h2 style="margin: 8px 0 0 0;">Rp {{ "{:,.2f}".format(total_seluruh_saldo) }}</h2>
             </div>
         </div>
