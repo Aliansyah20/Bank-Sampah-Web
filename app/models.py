@@ -49,6 +49,7 @@ class DetailPenyetoran(db.Model):
     berat_awal = db.Column(db.Numeric(8, 2), nullable=False)
     berat_verifikasi = db.Column(db.Numeric(8, 2), nullable=True)
     id_pengolah = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    catatan_ukuran = db.Column(db.String(100), nullable=True)
     
     # Status alur: 'menunggu', 'siap_jual', 'ditolak', 'terjual'
     status = db.Column(db.String(20), default='menunggu')
