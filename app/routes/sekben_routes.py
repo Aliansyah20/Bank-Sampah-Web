@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash
-from app.models import User, JenisSampah, Penyetoran, DetailPenyetoran
+from app.models import User, JenisSampah, Penyetoran, DetailPenyetoran, Pengeluaran
 from app.extensions import db
 from app.utils import role_required
-from app.models import Pengeluaran
+from datetime import datetime  
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import re
 
 sekben_bp = Blueprint('sekben', __name__)
@@ -171,10 +172,26 @@ def tambah_warga():
     flash(f'Akun warga {nama_lengkap} dari {rw_asal} berhasil didaftarkan!', 'success')
     return redirect(url_for('sekben.kelola_warga'))
 
-# --- MENU DATA PENGELUARAN UNTUK SEKBEN ---
+
 @sekben_bp.route('/pengeluaran')
 @role_required(['sekben'])
 def kelola_pengeluaran():
-    daftar_pengeluaran = Pengeluaran.query.order_by(Pengeluaran.id.desc()).all()
+    daftar_pengeluaran = Pengeluaran.query.order_by(Pengeluaran.tanggal.desc()).all()
     total_keluar = sum(p.nominal for p in daftar_pengeluaran)
-    return render_template('dashboard/sekben_pengeluaran.html', daftar=daftar_pengeluaran, total_keluar=total_keluar)
+    return render_template(
+        'dashboard/sekben_pengeluaran.html',
+        daftar=daftar_pengeluaran,
+        total_keluar=total_keluar
+    )
+
+@sekben_bp.route('/pengeluaran/cetak')
+@role_required(['sekben'])
+def cetak_laporan_pengeluaran():
+    daftar_pengeluaran = Pengeluaran.query.order_by(Pengeluaran.tanggal.asc()).all()
+    total_keluar = sum(p.nominal for p in daftar_pengeluaran)
+    return render_template(
+        'dashboard/cetak_laporan_pengeluaran.html',
+        daftar=daftar_pengeluaran,
+        total_keluar=total_keluar,
+        waktu_cetak=datetime.now().strftime('%d/%m/%Y %H:%M')
+    )
