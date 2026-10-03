@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Pengeluaran Kas Bank Sampah SADA</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 30px; background: #fff; }
+        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 20px; }
+        .header h2 { margin: 0; font-size: 20px; text-transform: uppercase; }
+        .header h3 { margin: 5px 0 0 0; font-size: 15px; font-weight: normal; }
+        .meta-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 25px; }
+        th, td { border: 1px solid #999; padding: 8px 10px; text-align: left; }
+        th { background-color: #f2f2f2; text-align: center; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .signature { margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+        .signature-box { text-align: center; width: 220px; }
+        .signature-line { margin-top: 65px; border-bottom: 1px solid #000; }
+        @media print { .no-print { display: none !important; } body { padding: 0; } }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="background: #f8fafc; padding: 12px 20px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+        <span><b>Pratinjau Cetak:</b> Buku Laporan Pengeluaran Kas Warga</span>
+        <div>
+            <button onclick="window.print()" style="background: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer;">🖨️ Cetak / PDF</button>
+            <button onclick="window.close()" style="background: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; margin-left: 8px;">Tutup</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <h2>SISTEM INFORMASI BANK SAMPAH (SADA)</h2>
+        <h3>BUKU CATATAN PENGELUARAN & PENARIKAN TABUNGAN WARGA</h3>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #555;">Arsip Resmi Sekretariat & Bendahara Pengelolaan Sampah RW</p>
+    </div>
+
+    <div class="meta-info">
+        <div><b>Waktu Cetak:</b> {{ waktu_cetak }}</div>
+        <div><b>Total Dana Keluar:</b> Rp {{ "{:,.2f}".format(total_keluar) }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px;">No</th>
+                <th>Tanggal & Waktu</th>
+                <th>Asal RW</th>
+                <th>Nama Warga</th>
+                <th>Keterangan</th>
+                <th>Otorisator</th>
+                <th>Nominal Dicairkan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in daftar %}
+            <tr>
+                <td class="text-center">{{ loop.index }}</td>
+                <td class="text-center">{{ p.tanggal.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td class="text-center">{{ p.warga.rw if p.warga and p.warga.rw else 'Umum' }}</td>
+                <td>{{ p.warga.nama_lengkap if p.warga else '-' }}</td>
+                <td>{{ p.keterangan or '-' }}</td>
+                <td>{{ p.pengawas.nama_lengkap if p.pengawas else 'Pengawas' }}</td>
+                <td class="text-right"><b>Rp {{ "{:,.2f}".format(p.nominal) }}</b></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center" style="padding: 20px;">Tidak ada riwayat pengeluaran kas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr style="font-weight: bold; background: #fafafa;">
+                <td colspan="6" class="text-center">TOTAL KESELURUHAN DANA DICAIRKAN</td>
+                <td class="text-right">Rp {{ "{:,.2f}".format(total_keluar) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="signature">
+        <div class="signature-box">
+            <p>Mengetahui / Mengotorisasi,<br><b>Ketua RW / Pengawas</b></p>
+            <div class="signature-line"></div>
+            <p style="font-size: 11px; margin-top: 4px;">(Tanda Tangan & Cap RW)</p>
+        </div>
+        <div class="signature-box">
+            <p>Dibukukan Oleh,<br><b>Sekretaris & Bendahara (Sekben)</b></p>
+            <div class="signature-line"></div>
+            <p style="font-size: 11px; margin-top: 4px;"><b>{{ session.get('nama_lengkap', 'Petugas Sekben') }}</b></p>
+        </div>
+    </div>
+</body>
+</html>
