@@ -50,9 +50,10 @@ def terima_setoran():
     if request.method == 'POST':
         id_warga = request.form.get('id_warga')
         
-        # Mengambil seluruh daftar sampah yang diinput (mendukung array maupun non-array)
+        # Mengambil daftar input sampah, berat, dan ukuran (mendukung format array maupun non-array)
         list_jenis = request.form.getlist('id_jenis_sampah[]') or request.form.getlist('id_jenis_sampah')
         list_berat = request.form.getlist('berat_awal[]') or request.form.getlist('berat_awal')
+        list_ukuran = request.form.getlist('catatan_ukuran[]') or request.form.getlist('catatan_ukuran') # <-- [1] TAMBAHAN INPUT UKURAN
 
         # 1. Validasi warga
         if not id_warga:
@@ -75,8 +76,12 @@ def terima_setoran():
 
             jumlah_tersimpan = 0
 
-            # Lakukan perulangan (loop) untuk setiap barang yang diinput
-            for jenis_id, berat_str in zip(list_jenis, list_berat):
+            # [2] GUNAKAN zip_longest ATAU ITERASI KETIGA INPUT SECARA BERSAMAAN
+            for i in range(len(list_jenis)):
+                jenis_id = list_jenis[i]
+                berat_str = list_berat[i] if i < len(list_berat) else None
+                ukuran_str = list_ukuran[i] if i < len(list_ukuran) else None # <-- [3] AMBIL UKURAN Sesuai INDEX BARIS
+
                 if not jenis_id or not berat_str:
                     continue
                 
@@ -85,11 +90,15 @@ def terima_setoran():
                 if berat <= 0:
                     continue
 
+                # Clean string ukuran/volume jika ada
+                ukuran = str(ukuran_str).strip() if ukuran_str and str(ukuran_str).strip() else None
+
                 # Simpan setiap jenis sampah ke detail penyetoran
                 detail = DetailPenyetoran(
                     id_penyetoran=penyetoran_baru.id,
                     id_jenis_sampah=int(jenis_id),
                     berat_awal=berat,
+                    catatan_ukuran=ukuran, # <-- [4] SIMPAN KE KOLOM CATATAN_UKURAN
                     status='menunggu'
                 )
                 db.session.add(detail)
@@ -109,7 +118,8 @@ def terima_setoran():
 
         return redirect(url_for('sekben.terima_setoran'))
 
-    warga_list = User.query.filter_by(role='warga').order_by(User.nama_lengkap.asc()).all()
+    # Ambil warga aktif & jenis sampah untuk pilihan dropdown
+    warga_list = User.query.filter_by(role='warga', is_aktif=True).order_by(User.nama_lengkap.asc()).all()
     jenis_sampah_list = JenisSampah.query.order_by(JenisSampah.nama_jenis.asc()).all()
     return render_template('dashboard/terima_setoran.html', warga_list=warga_list, jenis_sampah_list=jenis_sampah_list)
 
