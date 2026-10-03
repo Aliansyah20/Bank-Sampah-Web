@@ -4,15 +4,19 @@
 
 {% block extra_css %}
 <style>
-    .form-container { background: white; padding: 30px; border-radius: 8px; max-width: 750px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+    .form-container { background: white; padding: 30px; border-radius: 8px; max-width: 850px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: bold; margin-bottom: 6px; }
     select, input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    .sampah-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-    .sampah-row select { flex: 2; }
-    .sampah-row input { flex: 1; }
+    
+    /* Baris dinamis dengan 3 kolom input: Jenis, Ukuran, Berat */
+    .sampah-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .sampah-row .select-jenis { flex: 2; }
+    .sampah-row .input-ukuran { flex: 1.5; }
+    .sampah-row .input-berat { flex: 1.2; }
+    
     .btn-del { background: #e74c3c; color: white; border: none; padding: 10px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .btn-add { background: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+    .btn-add { background: #27ae60; color: white; border: none; padding: 9px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
     .btn-submit { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; font-weight: bold; }
 </style>
 {% endblock %}
@@ -21,6 +25,17 @@
     <h2>📝 Formulir Penyetoran Sampah Warga</h2>
 
     <div class="form-container">
+        <!-- Rekomendasi Pilihan Ukuran Cepat (Bisa diketik manual bebas) -->
+        <datalist id="list-ukuran">
+            <option value="Botol 330 ml">
+            <option value="Botol 600 ml">
+            <option value="Botol 1.5 Liter">
+            <option value="Galon Le Minerale (15L)">
+            <option value="Galon Aqua / 19 Liter">
+            <option value="Gelas Plastik (Cup)">
+            <option value="Campur / Kiloan">
+        </datalist>
+
         <form method="POST" action="/sekben/terima-setoran">
             <!-- 1. Pilih Warga Sekali Saja -->
             <div class="form-group">
@@ -28,47 +43,55 @@
                 <select name="id_warga" style="width: 100%;" required>
                     <option value="">-- Pilih Warga Terdaftar --</option>
                     {% for w in warga_list %}
-                         <option value="{{ w.id }}">[{{ w.rw or 'Umum' }}] [WRG-{{ "%03d"|format(w.id) }}] {{ w.nama_lengkap }} (@{{ w.username }})</option>
+                        <option value="{{ w.id }}">[{{ w.rw or 'Umum' }}] [WRG-{{ "%03d"|format(w.id) }}] {{ w.nama_lengkap }} (@{{ w.username }})</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <!-- 2. Baris Rincian Sampah (Bisa Bertambah Banyak) -->
+            <!-- 2. Baris Rincian Sampah -->
             <label>Daftar Rincian Sampah yang Disetor:</label>
             <div id="sampah-container">
                 <div class="sampah-row">
-                    <select name="id_jenis_sampah[]" required>
+                    <!-- Kategori Sampah -->
+                    <select name="id_jenis_sampah[]" class="select-jenis" required>
                         <option value="">-- Pilih Jenis Sampah --</option>
                         {% for j in jenis_sampah_list %}
                             <option value="{{ j.id }}">{{ j.nama_jenis }}</option>
                         {% endfor %}
                     </select>
-                    <input type="number" step="0.01" name="berat_awal[]" placeholder="Berat Awal (Kg)" required>
+
+                    <!-- Input Ukuran / Liter / Galon -->
+                    <input type="text" name="catatan_ukuran[]" class="input-ukuran" list="list-ukuran" placeholder="Ukuran/Varian (cth: 1.5L, Galon)">
+
+                    <!-- Berat Taksiran Awal -->
+                    <input type="number" step="0.01" name="berat_awal[]" class="input-berat" placeholder="Berat (Kg)" required>
+
                     <button type="button" class="btn-del" onclick="hapusBaris(this)">✕</button>
                 </div>
             </div>
 
             <button type="button" class="btn-add" onclick="tambahBaris()">+ Tambah Jenis Sampah Lain</button>
 
-            <!-- 3. Tombol Simpan Sekaligus -->
+            <!-- 3. Tombol Simpan -->
             <button type="submit" class="btn-submit">SIMPAN SELURUH SETORAN</button>
         </form>
     </div>
 
-    <!-- Script Tambah Baris Otomatis -->
+    <!-- Script Tambah Baris Dinamis -->
     <script>
         function tambahBaris() {
             const container = document.getElementById('sampah-container');
             const newRow = document.createElement('div');
             newRow.className = 'sampah-row';
             newRow.innerHTML = `
-                <select name="id_jenis_sampah[]" required>
+                <select name="id_jenis_sampah[]" class="select-jenis" required>
                     <option value="">-- Pilih Jenis Sampah --</option>
                     {% for j in jenis_sampah_list %}
                         <option value="{{ j.id }}">{{ j.nama_jenis }}</option>
                     {% endfor %}
                 </select>
-                <input type="number" step="0.01" name="berat_awal[]" placeholder="Berat Awal (Kg)" required>
+                <input type="text" name="catatan_ukuran[]" class="input-ukuran" list="list-ukuran" placeholder="Ukuran/Varian (cth: 1.5L, Galon)">
+                <input type="number" step="0.01" name="berat_awal[]" class="input-berat" placeholder="Berat (Kg)" required>
                 <button type="button" class="btn-del" onclick="hapusBaris(this)">✕</button>
             `;
             container.appendChild(newRow);
