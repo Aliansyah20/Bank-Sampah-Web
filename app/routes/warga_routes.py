@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session
-from app.models import User, Penyetoran, DetailPenyetoran
+from app.models import User, Penyetoran, DetailPenyetoran, Pengeluaran
 from app.utils import role_required
 
 warga_bp = Blueprint('warga', __name__)
@@ -18,7 +18,14 @@ def dashboard():
         .order_by(DetailPenyetoran.id.desc())
         .all()
     )
-    
+    # Riwayat pengambilan uang / pencairan saldo warga
+    riwayat_penarikan = (
+        Pengeluaran.query
+        .filter_by(id_warga=user_id)
+        .order_by(Pengeluaran.tanggal.desc())
+        .all()
+    )
+    total_ditarik = sum(p.nominal for p in riwayat_penarikan)
     # Hitung ringkasan statistik pribadi warga
     total_transaksi = len(riwayat_setoran)
     total_berat_verifikasi = sum(
@@ -30,5 +37,6 @@ def dashboard():
         warga=user,
         riwayat=riwayat_setoran,
         total_transaksi=total_transaksi,
-        total_berat=total_berat_verifikasi
+        total_berat=total_berat_verifikasi,
+        total_ditarik=total_ditarik
     )
