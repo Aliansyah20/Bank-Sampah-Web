@@ -1,0 +1,73 @@
+{% extends "dashboard/base_sekben.html" %}
+
+{% block title %}Buku Pengeluaran Kas - Sekben{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 25px; }
+    .stat-banner { background: #e11d48; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 13px; }
+    th { background: #2c3e50; color: white; }
+    .badge-rw { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 11px; }
+    .btn-print { background: #16a34a; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 13px; }
+    .btn-print:hover { background: #15803d; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h2 style="margin: 0; color: #1e293b;">💳 Buku Rekapitulasi Pengeluaran Kas RW</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">Catatan audit pencairan uang tabungan warga yang diotorisasi oleh Pengawas.</p>
+        </div>
+        <a href="/sekben/pengeluaran/cetak" target="_blank" class="btn-print">🖨️ Cetak Laporan Pengeluaran</a>
+    </div>
+
+    <!-- BANNER TOTAL DANA KELUAR -->
+    <div class="stat-banner">
+        <div>
+            <small style="text-transform: uppercase; letter-spacing: 0.5px;">Akumulasi Dana Tabungan Dicairkan</small>
+            <h2 style="margin: 6px 0 0 0; font-size: 28px;">Rp {{ "{:,.2f}".format(total_keluar) }}</h2>
+        </div>
+        <div>
+            <span style="font-size: 14px; opacity: 0.9;">Total Transaksi: <b>{{ daftar|length }} Kali</b></span>
+        </div>
+    </div>
+
+    <!-- TABEL DATA PENGELUARAN LENGKAP ANTAR-RW -->
+    <div class="card">
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 35px;">No</th>
+                        <th>Waktu Pencairan</th>
+                        <th>Asal RW</th>
+                        <th>Nama Warga</th>
+                        <th>Nominal Keluar</th>
+                        <th>Keterangan</th>
+                        <th>Petugas Pengawas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in daftar %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td style="color: #64748b;">{{ p.tanggal.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td><span class="badge-rw">{{ p.warga.rw if p.warga and p.warga.rw else 'Umum' }}</span></td>
+                        <td><b>{{ p.warga.nama_lengkap if p.warga else 'Akun Dihapus' }}</b></td>
+                        <td style="color: #e11d48; font-weight: bold;">- Rp {{ "{:,.2f}".format(p.nominal) }}</td>
+                        <td>{{ p.keterangan or '-' }}</td>
+                        <td><small>{{ p.pengawas.nama_lengkap if p.pengawas else 'Pengawas' }}</small></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 25px;">Belum ada catatan pengeluaran kas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
