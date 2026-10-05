@@ -9,7 +9,8 @@ def create_app():
     
     # Konfigurasi Database & Secret Key ...
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('DB_USERNAME')}:{os.getenv('DB_PASSWORD') or ''}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
+    # Menggunakan SQLite (file database lokal otomatis dibuat di folder app)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', f"sqlite:///{os.path.join(app.root_path, 'banksampah.db')}")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Konfigurasi Upload Foto Bukti
